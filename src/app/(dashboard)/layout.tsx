@@ -1,0 +1,49 @@
+import { redirect } from "next/navigation";
+import { createClient } from "@/lib/supabase/server";
+import {
+  SidebarInset,
+  SidebarProvider,
+  SidebarTrigger,
+} from "@/components/ui/sidebar";
+import { Separator } from "@/components/ui/separator";
+import { AppSidebar } from "@/components/dashboard/app-sidebar";
+import type { Profile } from "@/types/db";
+
+export default async function DashboardLayout({
+  children,
+}: {
+  children: React.ReactNode;
+}) {
+  const supabase = await createClient();
+
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+
+  // Middleware already enforces this, but belt-and-suspenders for direct hits.
+  if (!user) redirect("/login");
+
+  const { data: profile } = await supabase
+    .from("profiles")
+    .select("id, email, full_name, avatar_url, role, created_at, updated_at")
+    .eq("id", user.id)
+    .single<Profile>();
+
+  if (!profile) redirect("/login");
+
+  return (
+    <SidebarProvider>
+      <AppSidebar profile={profile} />
+      <SidebarInset>
+        <header className="sticky top-0 z-10 flex h-14 shrink-0 items-center gap-2 border-b bg-background/80 px-4 backdrop-blur">
+          <SidebarTrigger className="-ml-1" />
+          <Separator orientation="vertical" className="mr-2 h-4" />
+          <h1 className="text-sm font-medium text-muted-foreground">
+            {profile.full_name ?? profile.email}
+          </h1>
+        </header>
+        <div className="flex flex-1 flex-col gap-6 p-6 md:p-8">{children}</div>
+      </SidebarInset>
+    </SidebarProvider>
+  );
+}
