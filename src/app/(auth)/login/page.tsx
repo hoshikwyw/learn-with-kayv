@@ -5,6 +5,7 @@ import { useActionState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { GoogleSignIn } from "@/components/auth/google-sign-in";
 import { signInAction } from "../actions";
 
 export default function LoginPage() {
@@ -18,6 +19,8 @@ export default function LoginPage() {
           Sign in to your Learn-with-kayv account.
         </p>
       </div>
+
+      <GoogleSignIn label="Sign in with Google" />
 
       <form action={formAction} className="space-y-4">
         <div className="space-y-2">

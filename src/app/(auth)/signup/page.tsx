@@ -5,6 +5,7 @@ import { useActionState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { GoogleSignIn } from "@/components/auth/google-sign-in";
 import { signUpAction } from "../actions";
 
 export default function SignupPage() {
@@ -18,6 +19,8 @@ export default function SignupPage() {
           Students can self-enroll. Teachers apply separately.
         </p>
       </div>
+
+      <GoogleSignIn label="Sign up with Google" />
 
       <form action={formAction} className="space-y-4">
         <div className="space-y-2">
