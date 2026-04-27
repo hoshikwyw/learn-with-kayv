@@ -16,7 +16,7 @@ export default function SignupPage() {
       <div className="space-y-1.5 text-center">
         <h1 className="text-2xl font-semibold tracking-tight">Create an account</h1>
         <p className="text-sm text-muted-foreground">
-          Students can self-enroll. Teachers apply separately.
+          Students can self-enroll. Teachers and admins are added by an existing admin.
         </p>
       </div>
 

@@ -36,30 +36,22 @@ create trigger profiles_touch_updated_at
 
 -- ─────────────────────────────────────────────────────────────────────────────
 -- 3. Auto-create a profile when a new auth user is inserted.
---    The first admin is seeded by email whitelist — change this to your own
---    email if you are not `khaingwutyiwin1712@gmail.com`.
+--    Everyone starts as a student. Promote to teacher/admin via the admin UI
+--    (which uses the service-role key) or by manual SQL update.
 -- ─────────────────────────────────────────────────────────────────────────────
 create or replace function public.handle_new_user()
 returns trigger
 language plpgsql
 security definer set search_path = public
 as $$
-declare
-  assigned_role public.user_role;
 begin
-  if new.email = 'khaingwutyiwin1712@gmail.com' then
-    assigned_role := 'admin';
-  else
-    assigned_role := 'student';
-  end if;
-
   insert into public.profiles (id, email, full_name, avatar_url, role)
   values (
     new.id,
     new.email,
     coalesce(new.raw_user_meta_data->>'full_name', ''),
     new.raw_user_meta_data->>'avatar_url',
-    assigned_role
+    'student'
   );
   return new;
 end;
