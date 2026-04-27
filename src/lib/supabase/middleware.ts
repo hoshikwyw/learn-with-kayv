@@ -11,11 +11,20 @@ const ROLE_PREFIXES: Record<Role, string> = {
   student: "/student",
 };
 
+const SHARED_AUTH_PATHS = ["/profile"];
+
 function isProtected(pathname: string) {
   return (
     pathname.startsWith("/admin") ||
     pathname.startsWith("/teacher") ||
     pathname.startsWith("/student")
+  );
+}
+
+function requiresAuth(pathname: string) {
+  return (
+    isProtected(pathname) ||
+    SHARED_AUTH_PATHS.some((p) => pathname.startsWith(p))
   );
 }
 
@@ -53,8 +62,8 @@ export async function updateSession(request: NextRequest) {
   const isPublicRoute =
     PUBLIC_PATHS.includes(pathname) || pathname.startsWith("/_next");
 
-  // Unauthenticated users hitting a dashboard → /login
-  if (!user && isProtected(pathname)) {
+  // Unauthenticated users hitting a protected route → /login
+  if (!user && requiresAuth(pathname)) {
     const url = request.nextUrl.clone();
     url.pathname = "/login";
     url.searchParams.set("redirect", pathname);

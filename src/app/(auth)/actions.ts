@@ -5,6 +5,7 @@ import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 
 type ActionState = { error?: string } | undefined;
+type PasswordActionState = { error?: string; success?: string } | undefined;
 
 export async function signInAction(
   _prev: ActionState,
@@ -73,6 +74,27 @@ export async function signInWithGoogleAction() {
   }
 
   redirect(data.url);
+}
+
+export async function updatePasswordAction(
+  _prev: PasswordActionState,
+  formData: FormData,
+): Promise<PasswordActionState> {
+  const newPassword = String(formData.get("new_password") ?? "");
+  const confirmPassword = String(formData.get("confirm_password") ?? "");
+
+  if (newPassword.length < 8) {
+    return { error: "Password must be at least 8 characters." };
+  }
+  if (newPassword !== confirmPassword) {
+    return { error: "Passwords do not match." };
+  }
+
+  const supabase = await createClient();
+  const { error } = await supabase.auth.updateUser({ password: newPassword });
+  if (error) return { error: error.message };
+
+  return { success: "Password updated." };
 }
 
 export async function signOutAction() {

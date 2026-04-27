@@ -37,7 +37,7 @@ creates:
 - `profiles` table (RBAC source of truth)
 - `courses` and `grades` tables
 - A trigger that auto-creates a profile on every signup and seeds the first
-  admin by email whitelist (default: `tutustaymm@gmail.com` — edit the SQL if
+  admin by email whitelist (default: `khaingwutyiwin1712@gmail.com` — edit the SQL if
   you use a different email)
 - Row-level security policies for all three roles
 
@@ -90,7 +90,7 @@ supabase/migrations/          # SQL schema
 
 ## Making yourself admin
 
-If you signed up with an email other than `tutustaymm@gmail.com`, update your
+If you signed up with an email other than `khaingwutyiwin1712@gmail.com`, update your
 profile after signup:
 
 ```sql

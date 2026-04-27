@@ -37,7 +37,7 @@ create trigger profiles_touch_updated_at
 -- ─────────────────────────────────────────────────────────────────────────────
 -- 3. Auto-create a profile when a new auth user is inserted.
 --    The first admin is seeded by email whitelist — change this to your own
---    email if you are not `tutustaymm@gmail.com`.
+--    email if you are not `khaingwutyiwin1712@gmail.com`.
 -- ─────────────────────────────────────────────────────────────────────────────
 create or replace function public.handle_new_user()
 returns trigger
@@ -47,7 +47,7 @@ as $$
 declare
   assigned_role public.user_role;
 begin
-  if new.email = 'tutustaymm@gmail.com' then
+  if new.email = 'khaingwutyiwin1712@gmail.com' then
     assigned_role := 'admin';
   else
     assigned_role := 'student';
