@@ -4,7 +4,7 @@ import type { Role } from "@/types/db";
 import { ROLE_HOME } from "@/types/db";
 
 const PUBLIC_PATHS = ["/", "/about", "/news"];
-const AUTH_PATHS = ["/login", "/signup", "/verify-email", "/auth/callback"];
+const AUTH_PATHS = ["/login", "/auth/callback"];
 const ROLE_PREFIXES: Record<Role, string> = {
   admin: "/admin",
   teacher: "/teacher",

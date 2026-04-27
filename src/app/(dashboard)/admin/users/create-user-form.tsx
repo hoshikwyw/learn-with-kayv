@@ -19,15 +19,18 @@ export function CreateUserForm() {
         <Input id="full_name" name="full_name" required placeholder="Jane Doe" />
       </div>
       <div className="space-y-2">
-        <Label htmlFor="email">Email</Label>
+        <Label htmlFor="email">Google email</Label>
         <Input
           id="email"
           name="email"
           type="email"
           autoComplete="off"
           required
-          placeholder="jane@school.edu"
+          placeholder="jane@gmail.com"
         />
+        <p className="text-xs text-muted-foreground">
+          Must match the Google account they will sign in with.
+        </p>
       </div>
       <div className="space-y-2">
         <Label htmlFor="role">Role</Label>
@@ -41,21 +44,6 @@ export function CreateUserForm() {
           <option value="teacher">Teacher</option>
           <option value="admin">Admin</option>
         </select>
-      </div>
-      <div className="space-y-2">
-        <Label htmlFor="password">Temporary password</Label>
-        <Input
-          id="password"
-          name="password"
-          type="text"
-          autoComplete="off"
-          minLength={8}
-          required
-          placeholder="At least 8 characters"
-        />
-        <p className="text-xs text-muted-foreground">
-          Share this with the user securely. They can change it from their profile after first sign-in.
-        </p>
       </div>
       {state?.error && (
         <p className="text-sm text-destructive" role="alert">

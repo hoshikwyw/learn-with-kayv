@@ -38,11 +38,8 @@ export default function LandingPage() {
           their classes, and admins to run the school.
         </p>
         <div className="flex flex-wrap items-center justify-center gap-3">
-          <Button size="lg" render={<Link href="/signup" />}>
+          <Button size="lg" render={<Link href="/login" />}>
             Get started <ArrowRight className="ml-1 size-4" />
-          </Button>
-          <Button size="lg" variant="outline" render={<Link href="/login" />}>
-            I already have an account
           </Button>
         </div>
       </section>

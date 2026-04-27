@@ -10,7 +10,6 @@ import {
 import { Label } from "@/components/ui/label";
 import type { Profile } from "@/types/db";
 import { ROLE_LABEL } from "@/components/dashboard/nav-config";
-import { PasswordForm } from "./password-form";
 
 export default async function ProfilePage() {
   const supabase = await createClient();
@@ -32,7 +31,7 @@ export default async function ProfilePage() {
       <div className="space-y-1">
         <h1 className="text-2xl font-semibold tracking-tight">Profile</h1>
         <p className="text-sm text-muted-foreground">
-          Manage your account information and password.
+          Your account information.
         </p>
       </div>
 
@@ -40,25 +39,15 @@ export default async function ProfilePage() {
         <CardHeader>
           <CardTitle>Account info</CardTitle>
           <CardDescription>
-            Your email and role are set during signup.
+            Sign-in is handled by Google. To change your password, manage it
+            from your Google account settings.
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
           <Field label="Email" value={profile.email} />
           <Field label="Full name" value={profile.full_name ?? "—"} />
           <Field label="Role" value={ROLE_LABEL[profile.role]} />
-        </CardContent>
-      </Card>
-
-      <Card>
-        <CardHeader>
-          <CardTitle>Change password</CardTitle>
-          <CardDescription>
-            You will stay signed in after updating.
-          </CardDescription>
-        </CardHeader>
-        <CardContent>
-          <PasswordForm />
+          <Field label="Sign-in method" value="Google" />
         </CardContent>
       </Card>
     </div>

@@ -14,13 +14,9 @@ export async function createUserAction(
   const email = String(formData.get("email") ?? "").trim().toLowerCase();
   const fullName = String(formData.get("full_name") ?? "").trim();
   const role = String(formData.get("role") ?? "") as Role;
-  const password = String(formData.get("password") ?? "");
 
-  if (!email || !fullName || !password) {
-    return { error: "All fields are required." };
-  }
-  if (password.length < 8) {
-    return { error: "Temporary password must be at least 8 characters." };
+  if (!email || !fullName) {
+    return { error: "Email and full name are required." };
   }
   if (role !== "teacher" && role !== "admin") {
     return { error: "Role must be teacher or admin." };
@@ -44,7 +40,6 @@ export async function createUserAction(
   const admin = createAdminClient();
   const { data: created, error: createErr } = await admin.auth.admin.createUser({
     email,
-    password,
     email_confirm: true,
     user_metadata: { full_name: fullName },
   });
@@ -64,5 +59,7 @@ export async function createUserAction(
   }
 
   revalidatePath("/admin/users");
-  return { success: `Created ${role} ${email}. Share the temp password securely.` };
+  return {
+    success: `${email} created as ${role}. Tell them to sign in with Google using this exact email.`,
+  };
 }

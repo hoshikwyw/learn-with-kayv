@@ -8,8 +8,14 @@ timetables, teachers to manage their classes, and admins to run the school.
 - **Next.js 15** — App Router, Server Components, Server Actions
 - **TypeScript**
 - **Tailwind CSS v4** + **shadcn/ui** (base-nova style)
-- **Supabase** — Postgres + Auth via `@supabase/ssr`
+- **Supabase** — Postgres + Auth via `@supabase/ssr` (Google OAuth only)
 - **lucide-react** — icons
+
+## Auth model
+
+- **Google OAuth is the only sign-in method.** No email/password forms anywhere.
+- **Student** — created automatically the first time someone signs in with Google whose email is not already pre-registered.
+- **Teacher / Admin** — pre-created by an existing admin at `/admin/users`. The pre-created user must sign in with Google using the exact email the admin entered.
 
 ## Getting started
 
@@ -31,34 +37,38 @@ fill in:
 cp .env.local.example .env.local
 ```
 
-### 3. Run the SQL migration
+### 3. Configure Supabase Auth providers
+
+In the Supabase dashboard → **Authentication → Providers**:
+
+- **Google**: enable it. Paste your Google OAuth Client ID + Secret (Google Cloud Console → Credentials → OAuth 2.0 Client). Authorized redirect URI in Google Cloud: `https://<your-project>.supabase.co/auth/v1/callback`.
+- **Email**: **disable** it. Otherwise email/password sign-in is still callable via the JS SDK even though the UI has no form for it.
+
+In **Authentication → URL Configuration**, add `http://localhost:3000/auth/callback` to the allowed redirect URLs.
+
+### 4. Run the SQL migration
 
 In the Supabase dashboard, open **SQL Editor** and paste the contents of
-[`supabase/migrations/0001_init.sql`](supabase/migrations/0001_init.sql). This
-creates:
+[`supabase/migrations/0001_init.sql`](supabase/migrations/0001_init.sql). This creates:
 
 - `profiles` table (RBAC source of truth)
 - `courses` and `grades` tables
-- A trigger that auto-creates a profile on every signup with role `student`
+- A trigger that auto-creates a profile on every new auth user with role `student`
 - Row-level security policies for all three roles
 
-### 4. Bootstrap the first admin
-
-Roles work like this:
-
-- **Student** — anyone who signs up via the public form. Default for everyone.
-- **Teacher / Admin** — created by an existing admin from `/admin/users`.
+### 5. Bootstrap the first admin
 
 Since there's no admin yet, create the first one manually:
 
-1. **Supabase dashboard → Authentication → Users → "Add user"**: enter your email and a password, check "Auto Confirm User".
-2. The signup trigger creates a profile with role `student`. Promote it via **SQL Editor**:
+1. **Supabase dashboard → Authentication → Users → "Add user"** → enter the Google email you want to be admin (e.g. your @gmail.com address). Leave the password blank or set anything; check **"Auto Confirm User"**.
+2. The signup trigger inserts a `profiles` row with role `student`. Promote it via **SQL Editor**:
    ```sql
-   update public.profiles set role = 'admin' where email = 'your-email@example.com';
+   update public.profiles set role = 'admin' where email = 'your-email@gmail.com';
    ```
-3. Sign in to the app. From `/admin/users` you can now create teachers and additional admins — those get role assigned directly, no SQL needed.
+3. Run `npm run dev`, go to `http://localhost:3000/login`, click **"Continue with Google"**, sign in with that exact Google account. You'll land on `/admin`.
+4. From `/admin/users` you can now create teachers and additional admins.
 
-### 5. Start the dev server
+### 6. Start the dev server
 
 ```bash
 npm run dev
@@ -68,16 +78,17 @@ Visit [http://localhost:3000](http://localhost:3000).
 
 ## Routes
 
-URL                   | Who sees it           | Notes
----                   | ---                   | ---
-`/`                   | Public                | Landing (Hero + About + News)
-`/login` `/signup`    | Signed-out only       | Signed-in users are redirected to their role home
-`/admin/*`            | Admin only            | Users list, course creation
-`/teacher/*`          | Teacher only          | Assigned courses, Add Grade
-`/student/*`          | Student only          | Grades, Timetable
+| URL | Who sees it | Notes |
+| --- | --- | --- |
+| `/` | Public | Landing (Hero + About + News) |
+| `/login` | Signed-out only | Single "Continue with Google" button |
+| `/profile` | Any signed-in user | Account info |
+| `/admin/*` | Admin only | Users list + create form, course creation |
+| `/teacher/*` | Teacher only | Assigned courses, Add Grade |
+| `/student/*` | Student only | Grades, Timetable |
 
-Role enforcement is done in [`middleware.ts`](middleware.ts), which reads the
-user's role from `profiles` and redirects mismatched paths to their own home.
+Role enforcement is in [`middleware.ts`](middleware.ts), which reads the user's
+role from `profiles` and redirects mismatched paths to their own home.
 
 ## Folder layout
 
@@ -85,19 +96,21 @@ user's role from `profiles` and redirects mismatched paths to their own home.
 src/
 ├── app/
 │   ├── (marketing)/          # Public site (header + footer)
-│   ├── (auth)/               # login, signup, verify-email, server actions
+│   ├── (auth)/               # login + server actions
 │   ├── (dashboard)/          # Sidebar + RBAC shell
 │   │   ├── admin/
 │   │   ├── teacher/
-│   │   └── student/
+│   │   ├── student/
+│   │   └── profile/
 │   ├── auth/callback/        # Supabase OAuth redirect handler
 │   ├── layout.tsx            # Root (fonts + TooltipProvider)
 │   └── globals.css
 ├── components/
 │   ├── ui/                   # shadcn/ui primitives
+│   ├── auth/                 # GoogleSignIn button
 │   └── dashboard/            # app-sidebar, user-menu, nav-config
 ├── lib/
-│   ├── supabase/             # browser, server, middleware clients
+│   ├── supabase/             # browser, server, middleware, admin clients
 │   └── utils.ts              # cn()
 └── types/
     └── db.ts                 # Role, Profile, ROLE_HOME
@@ -108,10 +121,11 @@ supabase/migrations/          # SQL schema
 ## Adding teachers and admins
 
 Sign in as an admin, go to **/admin/users**, and use the "Create user" form.
-You set a temporary password; share it with the user securely (out-of-band).
-After first sign-in they can change it from **/profile**.
+Enter the user's Google email + full name + role (teacher or admin). They sign
+in at `/login` with that exact Google account; Supabase links the OAuth identity
+to the pre-created user, and the role you assigned applies on first sign-in.
 
-If you ever need to demote or change a role manually, run SQL:
+To change a role manually:
 
 ```sql
 update public.profiles set role = 'teacher' where email = 'someone@school.edu';
