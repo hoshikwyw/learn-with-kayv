@@ -1,6 +1,6 @@
 "use client";
 
-import { useActionState, useEffect, useRef } from "react";
+import { useActionState, useEffect, useRef, useState } from "react";
 import toast from "react-hot-toast";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -16,7 +16,13 @@ export function ProfileEditForm({
     updateProfileAction,
     undefined,
   );
+  const [fullName, setFullName] = useState(initialFullName);
   const seenRef = useRef<unknown>(undefined);
+
+  // Keep the input synced with the latest server-rendered value (after revalidation).
+  useEffect(() => {
+    setFullName(initialFullName);
+  }, [initialFullName]);
 
   useEffect(() => {
     if (!state || state === seenRef.current) return;
@@ -32,7 +38,8 @@ export function ProfileEditForm({
         <Input
           id="full_name"
           name="full_name"
-          defaultValue={initialFullName}
+          value={fullName}
+          onChange={(e) => setFullName(e.target.value)}
           maxLength={100}
           required
         />
