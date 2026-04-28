@@ -1,5 +1,4 @@
 import { redirect } from "next/navigation";
-import { createClient } from "@/lib/supabase/server";
 import {
   Card,
   CardContent,
@@ -8,23 +7,13 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
-import type { Profile } from "@/types/db";
 import { ROLE_LABEL } from "@/components/dashboard/nav-config";
+import { getCurrentUserAndProfile } from "@/lib/supabase/session";
 import { ProfileEditForm } from "./profile-edit-form";
 
 export default async function ProfilePage() {
-  const supabase = await createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
+  const { user, profile } = await getCurrentUserAndProfile();
   if (!user) redirect("/login");
-
-  const { data: profile } = await supabase
-    .from("profiles")
-    .select("id, email, full_name, avatar_url, role, created_at, updated_at")
-    .eq("id", user.id)
-    .single<Profile>();
-
   if (!profile) redirect("/login");
 
   return (

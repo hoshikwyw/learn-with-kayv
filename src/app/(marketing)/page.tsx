@@ -28,7 +28,8 @@ import {
 } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { createClient } from "@/lib/supabase/server";
-import { ROLE_HOME, type Role } from "@/types/db";
+import { getCurrentUserAndProfile } from "@/lib/supabase/session";
+import { ROLE_HOME } from "@/types/db";
 
 // Icons available to the About-items "icon" field. Keep this list in sync
 // with what the admin can pick from (or accept as a string).
@@ -76,43 +77,40 @@ const HERO_DEFAULT: Hero = {
 export default async function LandingPage() {
   const supabase = await createClient();
 
+  // 1 round-trip for ALL three site_settings keys instead of 3 separate calls.
+  // The user/profile fetch is cached (deduped with the marketing layout).
   const [
-    userResp,
-    heroResp,
+    sessionData,
+    settingsResp,
     aboutResp,
-    featuredNewsIdsResp,
-    featuredCourseIdsResp,
     featuredTeachersResp,
   ] = await Promise.all([
-    supabase.auth.getUser(),
-    supabase.from("site_settings").select("value").eq("key", "hero").maybeSingle<{ value: Hero }>(),
+    getCurrentUserAndProfile(),
+    supabase
+      .from("site_settings")
+      .select("key, value")
+      .in("key", ["hero", "featured_news_ids", "featured_course_ids"])
+      .returns<{ key: string; value: unknown }[]>(),
     supabase.from("about_items").select("id, icon, title, body").order("display_order", { ascending: true }).returns<AboutItem[]>(),
-    supabase.from("site_settings").select("value").eq("key", "featured_news_ids").maybeSingle<{ value: string[] }>(),
-    supabase.from("site_settings").select("value").eq("key", "featured_course_ids").maybeSingle<{ value: string[] }>(),
     supabase.from("featured_teachers").select("id, full_name, avatar_url, bio").order("display_order", { ascending: true }).returns<FeaturedTeacher[]>(),
   ]);
 
-  const user = userResp.data.user;
-  const hero = heroResp.data?.value ?? HERO_DEFAULT;
+  const settingsMap = new Map(
+    (settingsResp.data ?? []).map((row) => [row.key, row.value]),
+  );
+  const hero = (settingsMap.get("hero") as Hero | undefined) ?? HERO_DEFAULT;
+  const featuredNewsIds = Array.isArray(settingsMap.get("featured_news_ids"))
+    ? (settingsMap.get("featured_news_ids") as string[])
+    : [];
+  const featuredCourseIds = Array.isArray(settingsMap.get("featured_course_ids"))
+    ? (settingsMap.get("featured_course_ids") as string[])
+    : [];
   const aboutItems = aboutResp.data ?? [];
-  const featuredNewsIds = Array.isArray(featuredNewsIdsResp.data?.value)
-    ? featuredNewsIdsResp.data!.value
-    : [];
-  const featuredCourseIds = Array.isArray(featuredCourseIdsResp.data?.value)
-    ? featuredCourseIdsResp.data!.value
-    : [];
   const featuredTeachers = featuredTeachersResp.data ?? [];
 
-  // Resolve role-home if signed in
-  let dashboardHref: string | null = null;
-  if (user) {
-    const { data: profile } = await supabase
-      .from("profiles")
-      .select("role")
-      .eq("id", user.id)
-      .single<{ role: Role }>();
-    if (profile) dashboardHref = ROLE_HOME[profile.role];
-  }
+  const dashboardHref = sessionData.profile
+    ? ROLE_HOME[sessionData.profile.role]
+    : null;
 
   // Fetch the actual featured news + courses preserving id-array order
   const [featuredNews, featuredCourses] = await Promise.all([

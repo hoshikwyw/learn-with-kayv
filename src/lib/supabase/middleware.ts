@@ -70,31 +70,37 @@ export async function updateSession(request: NextRequest) {
     return NextResponse.redirect(url);
   }
 
-  // Authenticated users — resolve role once, then decide
+  // Authenticated users — only fetch profile if a routing decision needs the role.
+  // Skips a Supabase round-trip on every navigation to /, /profile, /_next/data, etc.
   if (user) {
-    const { data: profile } = await supabase
-      .from("profiles")
-      .select("role")
-      .eq("id", user.id)
-      .single<{ role: Role }>();
+    const needsRole =
+      (isAuthRoute && pathname !== "/auth/callback") || isProtected(pathname);
 
-    const role: Role = profile?.role ?? "student";
-    const home = ROLE_HOME[role];
+    if (needsRole) {
+      const { data: profile } = await supabase
+        .from("profiles")
+        .select("role")
+        .eq("id", user.id)
+        .single<{ role: Role }>();
 
-    // Redirect logged-in users away from auth pages
-    if (isAuthRoute && pathname !== "/auth/callback") {
-      const url = request.nextUrl.clone();
-      url.pathname = home;
-      return NextResponse.redirect(url);
-    }
+      const role: Role = profile?.role ?? "student";
+      const home = ROLE_HOME[role];
 
-    // RBAC: only allow users to access their own role's prefix
-    if (isProtected(pathname)) {
-      const allowed = ROLE_PREFIXES[role];
-      if (!pathname.startsWith(allowed)) {
+      // Redirect logged-in users away from auth pages
+      if (isAuthRoute && pathname !== "/auth/callback") {
         const url = request.nextUrl.clone();
         url.pathname = home;
         return NextResponse.redirect(url);
+      }
+
+      // RBAC: only allow users to access their own role's prefix
+      if (isProtected(pathname)) {
+        const allowed = ROLE_PREFIXES[role];
+        if (!pathname.startsWith(allowed)) {
+          const url = request.nextUrl.clone();
+          url.pathname = home;
+          return NextResponse.redirect(url);
+        }
       }
     }
   }

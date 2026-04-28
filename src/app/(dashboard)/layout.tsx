@@ -1,5 +1,4 @@
 import { redirect } from "next/navigation";
-import { createClient } from "@/lib/supabase/server";
 import {
   SidebarInset,
   SidebarProvider,
@@ -7,27 +6,17 @@ import {
 } from "@/components/ui/sidebar";
 import { Separator } from "@/components/ui/separator";
 import { AppSidebar } from "@/components/dashboard/app-sidebar";
-import type { Profile } from "@/types/db";
+import { getCurrentUserAndProfile } from "@/lib/supabase/session";
 
 export default async function DashboardLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
-  const supabase = await createClient();
-
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
+  const { user, profile } = await getCurrentUserAndProfile();
 
   // Middleware already enforces this, but belt-and-suspenders for direct hits.
   if (!user) redirect("/login");
-
-  const { data: profile } = await supabase
-    .from("profiles")
-    .select("id, email, full_name, avatar_url, role, created_at, updated_at")
-    .eq("id", user.id)
-    .single<Profile>();
 
   if (!profile) {
     redirect(

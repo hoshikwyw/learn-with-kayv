@@ -6,28 +6,15 @@ import {
   AvatarFallback,
   AvatarImage,
 } from "@/components/ui/avatar";
-import { createClient } from "@/lib/supabase/server";
-import { ROLE_HOME, type Profile } from "@/types/db";
+import { getCurrentUserAndProfile } from "@/lib/supabase/session";
+import { ROLE_HOME } from "@/types/db";
 
 export default async function MarketingLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
-  const supabase = await createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-
-  let profile: Pick<Profile, "email" | "full_name" | "avatar_url" | "role"> | null = null;
-  if (user) {
-    const { data } = await supabase
-      .from("profiles")
-      .select("email, full_name, avatar_url, role")
-      .eq("id", user.id)
-      .single<Pick<Profile, "email" | "full_name" | "avatar_url" | "role">>();
-    profile = data;
-  }
+  const { profile } = await getCurrentUserAndProfile();
 
   const dashboardHref = profile ? ROLE_HOME[profile.role] : null;
 
