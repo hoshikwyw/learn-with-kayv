@@ -5,6 +5,8 @@ import {
   GraduationCap,
   Calendar,
   ClipboardList,
+  FileText,
+  Newspaper,
   type LucideIcon,
 } from "lucide-react";
 import type { Role } from "@/types/db";
@@ -33,6 +35,13 @@ export const NAV_BY_ROLE: Record<Role, NavGroup[]> = {
       items: [
         { title: "Users", href: "/admin/users", icon: Users },
         { title: "Courses", href: "/admin/courses", icon: BookOpen },
+        { title: "News", href: "/admin/news", icon: Newspaper },
+      ],
+    },
+    {
+      label: "Marketing",
+      items: [
+        { title: "Site content", href: "/admin/content", icon: FileText },
       ],
     },
   ],

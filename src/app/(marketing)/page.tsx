@@ -1,34 +1,109 @@
 import Link from "next/link";
-import { ArrowRight, BookOpen, LayoutDashboard, Newspaper, Users } from "lucide-react";
+import {
+  ArrowRight,
+  BookOpen,
+  Calendar,
+  ClipboardList,
+  Clock,
+  GraduationCap,
+  LayoutDashboard,
+  Newspaper,
+  School,
+  Sparkles,
+  Star,
+  Users,
+  type LucideIcon,
+} from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  Avatar,
+  AvatarFallback,
+  AvatarImage,
+} from "@/components/ui/avatar";
+import {
+  Card,
+  CardContent,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
 import { createClient } from "@/lib/supabase/server";
 import { ROLE_HOME, type Role } from "@/types/db";
 
-const NEWS = [
-  {
-    date: "Apr 18, 2026",
-    title: "Spring term timetable published",
-    body: "Teachers and students can now view the full Spring term schedule from the dashboard.",
-  },
-  {
-    date: "Apr 05, 2026",
-    title: "New science lab opens on campus",
-    body: "A fully equipped science lab is now available for Year 8 and above.",
-  },
-  {
-    date: "Mar 22, 2026",
-    title: "Registrations open for 2026 cohort",
-    body: "Families can now enroll new students through the platform.",
-  },
-];
+// Icons available to the About-items "icon" field. Keep this list in sync
+// with what the admin can pick from (or accept as a string).
+const ICON_MAP: Record<string, LucideIcon> = {
+  BookOpen,
+  Users,
+  Newspaper,
+  GraduationCap,
+  ClipboardList,
+  Calendar,
+  School,
+  Sparkles,
+  Star,
+  Clock,
+};
+
+type Hero = { badge: string; title: string; subtitle: string };
+type AboutItem = { id: string; icon: string; title: string; body: string };
+type NewsItem = {
+  id: string;
+  title: string;
+  body: string;
+  published_on: string;
+};
+type Course = {
+  id: string;
+  code: string;
+  title: string;
+  description: string | null;
+};
+type FeaturedTeacher = {
+  id: string;
+  full_name: string;
+  avatar_url: string | null;
+  bio: string;
+};
+
+const HERO_DEFAULT: Hero = {
+  badge: "Private school · Est. 2026",
+  title: "A calm, modern home for learning at Learn-with-kayv.",
+  subtitle:
+    "One place for students to track grades and timetables, teachers to manage their classes, and admins to run the school.",
+};
 
 export default async function LandingPage() {
   const supabase = await createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
 
+  const [
+    userResp,
+    heroResp,
+    aboutResp,
+    featuredNewsIdsResp,
+    featuredCourseIdsResp,
+    featuredTeachersResp,
+  ] = await Promise.all([
+    supabase.auth.getUser(),
+    supabase.from("site_settings").select("value").eq("key", "hero").maybeSingle<{ value: Hero }>(),
+    supabase.from("about_items").select("id, icon, title, body").order("display_order", { ascending: true }).returns<AboutItem[]>(),
+    supabase.from("site_settings").select("value").eq("key", "featured_news_ids").maybeSingle<{ value: string[] }>(),
+    supabase.from("site_settings").select("value").eq("key", "featured_course_ids").maybeSingle<{ value: string[] }>(),
+    supabase.from("featured_teachers").select("id, full_name, avatar_url, bio").order("display_order", { ascending: true }).returns<FeaturedTeacher[]>(),
+  ]);
+
+  const user = userResp.data.user;
+  const hero = heroResp.data?.value ?? HERO_DEFAULT;
+  const aboutItems = aboutResp.data ?? [];
+  const featuredNewsIds = Array.isArray(featuredNewsIdsResp.data?.value)
+    ? featuredNewsIdsResp.data!.value
+    : [];
+  const featuredCourseIds = Array.isArray(featuredCourseIdsResp.data?.value)
+    ? featuredCourseIdsResp.data!.value
+    : [];
+  const featuredTeachers = featuredTeachersResp.data ?? [];
+
+  // Resolve role-home if signed in
   let dashboardHref: string | null = null;
   if (user) {
     const { data: profile } = await supabase
@@ -39,20 +114,26 @@ export default async function LandingPage() {
     if (profile) dashboardHref = ROLE_HOME[profile.role];
   }
 
+  // Fetch the actual featured news + courses preserving id-array order
+  const [featuredNews, featuredCourses] = await Promise.all([
+    fetchByIds<NewsItem>(supabase, "news_items", "id, title, body, published_on", featuredNewsIds),
+    fetchByIds<Course>(supabase, "courses", "id, code, title, description", featuredCourseIds),
+  ]);
+
   return (
     <>
       {/* Hero */}
       <section className="mx-auto flex w-full max-w-7xl flex-col items-center gap-8 px-6 py-24 text-center md:py-32">
-        <span className="rounded-full border border-border/80 bg-muted/30 px-4 py-1.5 text-xs font-medium text-muted-foreground">
-          Private school · Est. 2026
-        </span>
+        {hero.badge && (
+          <span className="rounded-full border border-border/80 bg-muted/30 px-4 py-1.5 text-xs font-medium text-muted-foreground">
+            {hero.badge}
+          </span>
+        )}
         <h1 className="max-w-3xl text-balance text-4xl font-semibold tracking-tight md:text-6xl">
-          A calm, modern home for learning at{" "}
-          <span className="text-primary">Learn-with-kayv</span>.
+          {hero.title}
         </h1>
         <p className="max-w-xl text-balance text-base text-muted-foreground md:text-lg">
-          One place for students to track grades and timetables, teachers to manage
-          their classes, and admins to run the school.
+          {hero.subtitle}
         </p>
         <div className="flex flex-wrap items-center justify-center gap-3">
           {dashboardHref ? (
@@ -69,76 +150,164 @@ export default async function LandingPage() {
       </section>
 
       {/* About */}
-      <section id="about" className="border-y border-border/60 bg-muted/20">
-        <div className="mx-auto grid w-full max-w-7xl gap-10 px-6 py-20 md:grid-cols-3">
-          <About
-            icon={<BookOpen className="size-5" />}
-            title="Coursera-style courses"
-            body="Modules, lessons, quizzes and assignments — structured the way students already learn online."
-          />
-          <About
-            icon={<Users className="size-5" />}
-            title="Three roles, one system"
-            body="Admins manage users and courses. Teachers grade work. Students track progress. Each gets a focused dashboard."
-          />
-          <About
-            icon={<Newspaper className="size-5" />}
-            title="School news, built in"
-            body="Announcements, timetable changes, and events — published by admins, visible to the whole school."
-          />
-        </div>
-      </section>
+      {aboutItems.length > 0 && (
+        <section id="about" className="border-y border-border/60 bg-muted/20">
+          <div className="mx-auto grid w-full max-w-7xl gap-10 px-6 py-20 md:grid-cols-3">
+            {aboutItems.map((item) => {
+              const Icon = ICON_MAP[item.icon] ?? Sparkles;
+              return (
+                <div key={item.id} className="flex flex-col gap-3">
+                  <div className="flex size-10 items-center justify-center rounded-lg bg-primary/10 text-primary">
+                    <Icon className="size-5" />
+                  </div>
+                  <h3 className="text-lg font-semibold tracking-tight">
+                    {item.title}
+                  </h3>
+                  <p className="text-sm text-muted-foreground">{item.body}</p>
+                </div>
+              );
+            })}
+          </div>
+        </section>
+      )}
 
-      {/* News */}
-      <section id="news" className="mx-auto w-full max-w-7xl px-6 py-20">
-        <div className="mb-10 flex items-end justify-between">
-          <div>
+      {/* Courses */}
+      {featuredCourses.length > 0 && (
+        <section id="courses" className="mx-auto w-full max-w-7xl px-6 py-20">
+          <div className="mb-10">
             <h2 className="text-2xl font-semibold tracking-tight md:text-3xl">
-              Latest news
+              Our courses
             </h2>
             <p className="mt-1 text-sm text-muted-foreground">
-              What&apos;s been happening on campus.
+              A taste of what we offer.
             </p>
           </div>
-        </div>
-        <div className="grid gap-4 md:grid-cols-3">
-          {NEWS.map((n) => (
-            <Card key={n.title} className="border-border/60">
-              <CardHeader>
-                <p className="text-xs font-medium text-muted-foreground">
-                  {n.date}
-                </p>
-                <CardTitle className="text-base font-semibold leading-snug">
-                  {n.title}
-                </CardTitle>
-              </CardHeader>
-              <CardContent className="text-sm text-muted-foreground">
-                {n.body}
-              </CardContent>
-            </Card>
-          ))}
-        </div>
-      </section>
+          <div className="grid gap-4 md:grid-cols-3">
+            {featuredCourses.map((c) => (
+              <Card key={c.id} className="border-border/60">
+                <CardHeader>
+                  <Badge variant="secondary" className="w-fit">
+                    {c.code}
+                  </Badge>
+                  <CardTitle className="text-base font-semibold leading-snug">
+                    {c.title}
+                  </CardTitle>
+                </CardHeader>
+                <CardContent className="text-sm text-muted-foreground">
+                  {c.description ?? "—"}
+                </CardContent>
+              </Card>
+            ))}
+          </div>
+        </section>
+      )}
+
+      {/* Teachers */}
+      {featuredTeachers.length > 0 && (
+        <section
+          id="teachers"
+          className="border-y border-border/60 bg-muted/20"
+        >
+          <div className="mx-auto w-full max-w-7xl px-6 py-20">
+            <div className="mb-10">
+              <h2 className="text-2xl font-semibold tracking-tight md:text-3xl">
+                Meet the teachers
+              </h2>
+              <p className="mt-1 text-sm text-muted-foreground">
+                The people who run the classroom.
+              </p>
+            </div>
+            <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-5">
+              {featuredTeachers.map((t) => (
+                <Card key={t.id} className="border-border/60 text-center">
+                  <CardContent className="flex flex-col items-center gap-3 pt-6">
+                    <Avatar className="size-20">
+                      {t.avatar_url && (
+                        <AvatarImage src={t.avatar_url} alt={t.full_name} />
+                      )}
+                      <AvatarFallback className="text-lg">
+                        {initials(t.full_name)}
+                      </AvatarFallback>
+                    </Avatar>
+                    <div>
+                      <p className="font-semibold">{t.full_name}</p>
+                      {t.bio && (
+                        <p className="mt-2 text-xs text-muted-foreground">
+                          {t.bio}
+                        </p>
+                      )}
+                    </div>
+                  </CardContent>
+                </Card>
+              ))}
+            </div>
+          </div>
+        </section>
+      )}
+
+      {/* News */}
+      {featuredNews.length > 0 && (
+        <section id="news" className="mx-auto w-full max-w-7xl px-6 py-20">
+          <div className="mb-10 flex items-end justify-between">
+            <div>
+              <h2 className="text-2xl font-semibold tracking-tight md:text-3xl">
+                Latest news
+              </h2>
+              <p className="mt-1 text-sm text-muted-foreground">
+                What&apos;s been happening on campus.
+              </p>
+            </div>
+          </div>
+          <div className="grid gap-4 md:grid-cols-3">
+            {featuredNews.map((n) => (
+              <Card key={n.id} className="border-border/60">
+                <CardHeader>
+                  <p className="text-xs font-medium text-muted-foreground">
+                    {new Date(n.published_on).toLocaleDateString(undefined, {
+                      year: "numeric",
+                      month: "short",
+                      day: "numeric",
+                    })}
+                  </p>
+                  <CardTitle className="text-base font-semibold leading-snug">
+                    {n.title}
+                  </CardTitle>
+                </CardHeader>
+                <CardContent className="text-sm text-muted-foreground">
+                  {n.body}
+                </CardContent>
+              </Card>
+            ))}
+          </div>
+        </section>
+      )}
     </>
   );
 }
 
-function About({
-  icon,
-  title,
-  body,
-}: {
-  icon: React.ReactNode;
-  title: string;
-  body: string;
-}) {
-  return (
-    <div className="flex flex-col gap-3">
-      <div className="flex size-10 items-center justify-center rounded-lg bg-primary/10 text-primary">
-        {icon}
-      </div>
-      <h3 className="text-lg font-semibold tracking-tight">{title}</h3>
-      <p className="text-sm text-muted-foreground">{body}</p>
-    </div>
-  );
+function initials(value: string) {
+  return value
+    .split(" ")
+    .map((p) => p[0])
+    .slice(0, 2)
+    .join("")
+    .toUpperCase();
+}
+
+async function fetchByIds<T extends { id: string }>(
+  supabase: Awaited<ReturnType<typeof createClient>>,
+  table: string,
+  columns: string,
+  ids: string[],
+): Promise<T[]> {
+  if (ids.length === 0) return [];
+  const { data } = await supabase
+    .from(table)
+    .select(columns)
+    .in("id", ids)
+    .returns<T[]>();
+  if (!data) return [];
+  // Preserve order of `ids`
+  const byId = new Map(data.map((d) => [d.id, d]));
+  return ids.map((id) => byId.get(id)).filter((x): x is T => Boolean(x));
 }
