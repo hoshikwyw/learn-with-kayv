@@ -29,7 +29,13 @@ export default async function DashboardLayout({
     .eq("id", user.id)
     .single<Profile>();
 
-  if (!profile) redirect("/login");
+  if (!profile) {
+    redirect(
+      `/login?error=${encodeURIComponent(
+        "No profile found for your account. Ask an admin to add you.",
+      )}`,
+    );
+  }
 
   return (
     <SidebarProvider>

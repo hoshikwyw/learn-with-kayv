@@ -1,7 +1,9 @@
 import Link from "next/link";
-import { ArrowRight, BookOpen, Newspaper, Users } from "lucide-react";
+import { ArrowRight, BookOpen, LayoutDashboard, Newspaper, Users } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { createClient } from "@/lib/supabase/server";
+import { ROLE_HOME, type Role } from "@/types/db";
 
 const NEWS = [
   {
@@ -21,7 +23,22 @@ const NEWS = [
   },
 ];
 
-export default function LandingPage() {
+export default async function LandingPage() {
+  const supabase = await createClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+
+  let dashboardHref: string | null = null;
+  if (user) {
+    const { data: profile } = await supabase
+      .from("profiles")
+      .select("role")
+      .eq("id", user.id)
+      .single<{ role: Role }>();
+    if (profile) dashboardHref = ROLE_HOME[profile.role];
+  }
+
   return (
     <>
       {/* Hero */}
@@ -38,9 +55,16 @@ export default function LandingPage() {
           their classes, and admins to run the school.
         </p>
         <div className="flex flex-wrap items-center justify-center gap-3">
-          <Button size="lg" render={<Link href="/login" />}>
-            Get started <ArrowRight className="ml-1 size-4" />
-          </Button>
+          {dashboardHref ? (
+            <Button size="lg" render={<Link href={dashboardHref} />}>
+              <LayoutDashboard className="size-4" />
+              Go to dashboard
+            </Button>
+          ) : (
+            <Button size="lg" render={<Link href="/login" />}>
+              Get started <ArrowRight className="ml-1 size-4" />
+            </Button>
+          )}
         </div>
       </section>
 

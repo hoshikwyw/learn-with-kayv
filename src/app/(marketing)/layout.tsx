@@ -1,12 +1,36 @@
 import Link from "next/link";
-import { GraduationCap } from "lucide-react";
+import { GraduationCap, LayoutDashboard } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import {
+  Avatar,
+  AvatarFallback,
+  AvatarImage,
+} from "@/components/ui/avatar";
+import { createClient } from "@/lib/supabase/server";
+import { ROLE_HOME, type Profile } from "@/types/db";
 
-export default function MarketingLayout({
+export default async function MarketingLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
+  const supabase = await createClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+
+  let profile: Pick<Profile, "email" | "full_name" | "avatar_url" | "role"> | null = null;
+  if (user) {
+    const { data } = await supabase
+      .from("profiles")
+      .select("email, full_name, avatar_url, role")
+      .eq("id", user.id)
+      .single<Pick<Profile, "email" | "full_name" | "avatar_url" | "role">>();
+    profile = data;
+  }
+
+  const dashboardHref = profile ? ROLE_HOME[profile.role] : null;
+
   return (
     <div className="flex min-h-screen flex-col">
       <header className="sticky top-0 z-40 w-full border-b border-border/60 bg-background/80 backdrop-blur">
@@ -25,10 +49,38 @@ export default function MarketingLayout({
               News
             </Link>
           </nav>
-          <div className="flex items-center gap-2">
-            <Button size="sm" render={<Link href="/login" />}>
-              Sign in
-            </Button>
+          <div className="flex items-center gap-3">
+            {profile && dashboardHref ? (
+              <>
+                <span className="hidden text-sm text-muted-foreground sm:inline">
+                  Signed in as{" "}
+                  <span className="font-medium text-foreground">
+                    {profile.full_name ?? profile.email}
+                  </span>
+                </span>
+                <Button size="sm" render={<Link href={dashboardHref} />}>
+                  <LayoutDashboard className="size-4" />
+                  Dashboard
+                </Button>
+                <Avatar className="size-8">
+                  {profile.avatar_url && (
+                    <AvatarImage src={profile.avatar_url} alt={profile.email} />
+                  )}
+                  <AvatarFallback>
+                    {(profile.full_name ?? profile.email)
+                      .split(" ")
+                      .map((p) => p[0])
+                      .slice(0, 2)
+                      .join("")
+                      .toUpperCase()}
+                  </AvatarFallback>
+                </Avatar>
+              </>
+            ) : (
+              <Button size="sm" render={<Link href="/login" />}>
+                Sign in
+              </Button>
+            )}
           </div>
         </div>
       </header>
