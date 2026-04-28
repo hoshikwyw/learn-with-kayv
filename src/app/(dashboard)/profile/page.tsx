@@ -10,6 +10,7 @@ import {
 import { Label } from "@/components/ui/label";
 import type { Profile } from "@/types/db";
 import { ROLE_LABEL } from "@/components/dashboard/nav-config";
+import { ProfileEditForm } from "./profile-edit-form";
 
 export default async function ProfilePage() {
   const supabase = await createClient();
@@ -31,9 +32,22 @@ export default async function ProfilePage() {
       <div className="space-y-1">
         <h1 className="text-2xl font-semibold tracking-tight">Profile</h1>
         <p className="text-sm text-muted-foreground">
-          Your account information.
+          Update your name. Email and role come from your account and can&apos;t
+          be changed here.
         </p>
       </div>
+
+      <Card>
+        <CardHeader>
+          <CardTitle>Edit profile</CardTitle>
+          <CardDescription>
+            Your full name shows up in the sidebar and across the app.
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
+          <ProfileEditForm initialFullName={profile.full_name ?? ""} />
+        </CardContent>
+      </Card>
 
       <Card>
         <CardHeader>
@@ -45,7 +59,6 @@ export default async function ProfilePage() {
         </CardHeader>
         <CardContent className="space-y-4">
           <Field label="Email" value={profile.email} />
-          <Field label="Full name" value={profile.full_name ?? "—"} />
           <Field label="Role" value={ROLE_LABEL[profile.role]} />
           <Field label="Sign-in method" value="Google" />
         </CardContent>

@@ -1,6 +1,7 @@
 "use client";
 
-import { useActionState } from "react";
+import { useActionState, useEffect, useRef } from "react";
+import toast from "react-hot-toast";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -11,6 +12,14 @@ export function CreateUserForm() {
     createUserAction,
     undefined,
   );
+  const seenRef = useRef<unknown>(undefined);
+
+  useEffect(() => {
+    if (!state || state === seenRef.current) return;
+    seenRef.current = state;
+    if (state.success) toast.success(state.success);
+    else if (state.error) toast.error(state.error);
+  }, [state]);
 
   return (
     <form action={formAction} className="space-y-4" key={state?.success}>
@@ -45,16 +54,6 @@ export function CreateUserForm() {
           <option value="admin">Admin</option>
         </select>
       </div>
-      {state?.error && (
-        <p className="text-sm text-destructive" role="alert">
-          {state.error}
-        </p>
-      )}
-      {state?.success && (
-        <p className="text-sm text-emerald-600" role="status">
-          {state.success}
-        </p>
-      )}
       <Button type="submit" disabled={pending}>
         {pending ? "Creating..." : "Create user"}
       </Button>

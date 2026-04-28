@@ -22,7 +22,7 @@ export async function GET(request: NextRequest) {
 
   // If middleware kicked them here with a "redirect=" param, honor it.
   if (next && next.startsWith("/")) {
-    return NextResponse.redirect(`${origin}${next}`);
+    return NextResponse.redirect(`${origin}${next}?toast=signed_in`);
   }
 
   // Otherwise route to the user's role home.
@@ -47,5 +47,7 @@ export async function GET(request: NextRequest) {
     );
   }
 
-  return NextResponse.redirect(`${origin}${ROLE_HOME[profile.role]}`);
+  return NextResponse.redirect(
+    `${origin}${ROLE_HOME[profile.role]}?toast=signed_in`,
+  );
 }
