@@ -6,6 +6,7 @@ import {
   AvatarFallback,
   AvatarImage,
 } from "@/components/ui/avatar";
+import { ThemeToggle } from "@/components/theme/theme-toggle";
 import { getCurrentUserAndProfile } from "@/lib/supabase/session";
 import { ROLE_HOME } from "@/types/db";
 
@@ -37,6 +38,7 @@ export default async function MarketingLayout({
             </Link>
           </nav>
           <div className="flex items-center gap-3">
+            <ThemeToggle />
             {profile && dashboardHref ? (
               <>
                 <span className="hidden text-sm text-muted-foreground sm:inline">

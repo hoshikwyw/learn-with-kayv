@@ -6,6 +6,7 @@ import {
 } from "@/components/ui/sidebar";
 import { Separator } from "@/components/ui/separator";
 import { AppSidebar } from "@/components/dashboard/app-sidebar";
+import { ThemeToggle } from "@/components/theme/theme-toggle";
 import { getCurrentUserAndProfile } from "@/lib/supabase/session";
 
 export default async function DashboardLayout({
@@ -36,6 +37,9 @@ export default async function DashboardLayout({
           <h1 className="text-sm font-medium text-muted-foreground">
             {profile.full_name ?? profile.email}
           </h1>
+          <div className="ml-auto">
+            <ThemeToggle />
+          </div>
         </header>
         <div className="flex flex-1 flex-col gap-6 p-6 md:p-8">{children}</div>
       </SidebarInset>
