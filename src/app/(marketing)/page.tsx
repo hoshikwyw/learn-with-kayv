@@ -1,3 +1,4 @@
+import Image from "next/image";
 import Link from "next/link";
 import {
   ArrowRight,
@@ -59,6 +60,7 @@ type Course = {
   code: string;
   title: string;
   description: string | null;
+  image_url: string | null;
 };
 type FeaturedTeacher = {
   id: string;
@@ -115,7 +117,7 @@ export default async function LandingPage() {
   // Fetch the actual featured news + courses preserving id-array order
   const [featuredNews, featuredCourses] = await Promise.all([
     fetchByIds<NewsItem>(supabase, "news_items", "id, title, body, published_on", featuredNewsIds),
-    fetchByIds<Course>(supabase, "courses", "id, code, title, description", featuredCourseIds),
+    fetchByIds<Course>(supabase, "courses", "id, code, title, description, image_url", featuredCourseIds),
   ]);
 
   return (
@@ -182,7 +184,18 @@ export default async function LandingPage() {
           </div>
           <div className="grid gap-4 md:grid-cols-3">
             {featuredCourses.map((c) => (
-              <Card key={c.id} className="border-border/60">
+              <Card key={c.id} className="overflow-hidden border-border/60 pt-0">
+                {c.image_url && (
+                  <div className="relative aspect-[16/9] w-full overflow-hidden bg-muted">
+                    <Image
+                      src={c.image_url}
+                      alt={c.title}
+                      fill
+                      sizes="(max-width: 768px) 100vw, 33vw"
+                      className="object-cover"
+                    />
+                  </div>
+                )}
                 <CardHeader>
                   <Badge variant="secondary" className="w-fit">
                     {c.code}

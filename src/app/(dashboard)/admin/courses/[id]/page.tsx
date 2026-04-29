@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { ArrowLeft, BookOpen } from "lucide-react";
+import { ArrowLeft, BookOpen, Image as ImageIcon } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -11,12 +11,14 @@ import {
 } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { createClient } from "@/lib/supabase/server";
+import { CourseImageUpload } from "./course-image-upload";
 
 type Course = {
   id: string;
   code: string;
   title: string;
   description: string | null;
+  image_url: string | null;
   created_at: string;
 };
 
@@ -30,7 +32,7 @@ export default async function CourseDetailPage({
 
   const { data: course } = await supabase
     .from("courses")
-    .select("id, code, title, description, created_at")
+    .select("id, code, title, description, image_url, created_at")
     .eq("id", id)
     .single<Course>();
 
@@ -63,6 +65,24 @@ export default async function CourseDetailPage({
 
       <div className="grid gap-6 lg:grid-cols-2">
         <Card>
+          <CardHeader className="flex flex-row items-start gap-3">
+            <ImageIcon className="size-5 text-muted-foreground" />
+            <div>
+              <CardTitle>Course image</CardTitle>
+              <CardDescription>
+                Shown on the public landing page and in course listings.
+              </CardDescription>
+            </div>
+          </CardHeader>
+          <CardContent>
+            <CourseImageUpload
+              courseId={course.id}
+              initialImageUrl={course.image_url}
+            />
+          </CardContent>
+        </Card>
+
+        <Card>
           <CardHeader>
             <CardTitle>Description</CardTitle>
           </CardHeader>
@@ -77,7 +97,7 @@ export default async function CourseDetailPage({
           </CardContent>
         </Card>
 
-        <Card>
+        <Card className="lg:col-span-2">
           <CardHeader className="flex flex-row items-start gap-3">
             <BookOpen className="size-5 text-muted-foreground" />
             <div>

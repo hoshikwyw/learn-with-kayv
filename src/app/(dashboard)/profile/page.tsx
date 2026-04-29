@@ -34,7 +34,10 @@ export default async function ProfilePage() {
           </CardDescription>
         </CardHeader>
         <CardContent>
-          <ProfileEditForm initialFullName={profile.full_name ?? ""} />
+          <ProfileEditForm
+            initialFullName={profile.full_name ?? ""}
+            initialAvatarUrl={profile.avatar_url}
+          />
         </CardContent>
       </Card>
 

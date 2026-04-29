@@ -2,6 +2,9 @@
 
 import { revalidatePath } from "next/cache";
 import { createClient } from "@/lib/supabase/server";
+import { uploadImage, validateImage } from "@/lib/supabase/storage";
+
+const AVATAR_MAX_BYTES = 2 * 1024 * 1024;
 
 type State = { error?: string; success?: string } | undefined;
 
@@ -10,6 +13,7 @@ export async function updateProfileAction(
   formData: FormData,
 ): Promise<State> {
   const fullName = String(formData.get("full_name") ?? "").trim();
+  const file = formData.get("avatar");
 
   if (!fullName) {
     return { error: "Full name is required." };
@@ -24,14 +28,38 @@ export async function updateProfileAction(
   } = await supabase.auth.getUser();
   if (!user) return { error: "Not signed in." };
 
+  const validation = validateImage(file, AVATAR_MAX_BYTES);
+  if (validation.kind === "error") return { error: validation.message };
+
+  const updates: { full_name: string; avatar_url?: string } = {
+    full_name: fullName,
+  };
+
+  if (validation.kind === "ok") {
+    const result = await uploadImage(
+      supabase,
+      "avatars",
+      user.id,
+      validation.file,
+      validation.ext,
+    );
+    if (!result.ok) return { error: result.error };
+    updates.avatar_url = result.publicUrl;
+  }
+
   const { error } = await supabase
     .from("profiles")
-    .update({ full_name: fullName })
+    .update(updates)
     .eq("id", user.id);
 
   if (error) return { error: error.message };
 
   revalidatePath("/profile");
   revalidatePath("/", "layout");
-  return { success: "Profile updated." };
+  return {
+    success:
+      validation.kind === "ok"
+        ? "Profile and avatar updated."
+        : "Profile updated.",
+  };
 }
