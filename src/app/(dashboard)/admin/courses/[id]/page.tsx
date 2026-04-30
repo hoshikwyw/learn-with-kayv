@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { ArrowLeft, BookOpen, FileText, Image as ImageIcon } from "lucide-react";
+import { ArrowLeft, BookOpen, FileText, Image as ImageIcon, PlayCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -11,6 +11,8 @@ import {
 } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { createClient } from "@/lib/supabase/server";
+import { LessonsSection } from "@/components/lessons/lessons-section";
+import type { Lesson } from "@/components/lessons/lesson-row";
 import { CourseImageUpload } from "./course-image-upload";
 import { DescriptionEdit } from "./description-edit";
 import {
@@ -46,7 +48,7 @@ export default async function CourseDetailPage({
   const { id } = await params;
   const supabase = await createClient();
 
-  const [courseResp, assignmentsResp, allTeachersResp] = await Promise.all([
+  const [courseResp, assignmentsResp, allTeachersResp, lessonsResp] = await Promise.all([
     supabase
       .from("courses")
       .select("id, code, title, description, image_url, created_at")
@@ -66,6 +68,12 @@ export default async function CourseDetailPage({
       .eq("role", "teacher")
       .order("full_name", { ascending: true })
       .returns<AvailableTeacher[]>(),
+    supabase
+      .from("lessons")
+      .select("id, course_id, title, body, video_url, display_order")
+      .eq("course_id", id)
+      .order("display_order", { ascending: true })
+      .returns<Lesson[]>(),
   ]);
 
   const course = courseResp.data;
@@ -164,6 +172,25 @@ export default async function CourseDetailPage({
               courseId={course.id}
               assigned={assigned}
               available={available}
+            />
+          </CardContent>
+        </Card>
+
+        <Card className="lg:col-span-2">
+          <CardHeader className="flex flex-row items-start gap-3">
+            <PlayCircle className="size-5 text-muted-foreground" />
+            <div>
+              <CardTitle>Lessons</CardTitle>
+              <CardDescription>
+                Text + optional YouTube video. Use the up/down arrows to reorder.
+              </CardDescription>
+            </div>
+          </CardHeader>
+          <CardContent>
+            <LessonsSection
+              courseId={course.id}
+              lessons={lessonsResp.data ?? []}
+              canEdit={true}
             />
           </CardContent>
         </Card>
