@@ -5,6 +5,13 @@ import toast from "react-hot-toast";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { createUserAction } from "./actions";
 
 export function CreateUserForm() {
@@ -43,16 +50,15 @@ export function CreateUserForm() {
       </div>
       <div className="space-y-2">
         <Label htmlFor="role">Role</Label>
-        <select
-          id="role"
-          name="role"
-          defaultValue="teacher"
-          required
-          className="flex h-9 w-full rounded-md border border-input bg-transparent px-3 py-1 text-sm shadow-xs outline-hidden focus-visible:ring-2 focus-visible:ring-ring focus-visible:border-ring"
-        >
-          <option value="teacher">Teacher</option>
-          <option value="admin">Admin</option>
-        </select>
+        <Select name="role" defaultValue="teacher" required>
+          <SelectTrigger id="role">
+            <SelectValue />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="teacher">Teacher</SelectItem>
+            <SelectItem value="admin">Admin</SelectItem>
+          </SelectContent>
+        </Select>
       </div>
       <Button type="submit" disabled={pending}>
         {pending ? "Creating..." : "Create user"}

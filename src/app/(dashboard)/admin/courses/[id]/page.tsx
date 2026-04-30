@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { ArrowLeft, BookOpen, Image as ImageIcon } from "lucide-react";
+import { ArrowLeft, BookOpen, FileText, Image as ImageIcon } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -12,6 +12,12 @@ import {
 import { Badge } from "@/components/ui/badge";
 import { createClient } from "@/lib/supabase/server";
 import { CourseImageUpload } from "./course-image-upload";
+import { DescriptionEdit } from "./description-edit";
+import {
+  TeacherAssignment,
+  type AssignedTeacher,
+  type AvailableTeacher,
+} from "./teacher-assignment";
 
 type Course = {
   id: string;
@@ -22,6 +28,16 @@ type Course = {
   created_at: string;
 };
 
+type AssignmentRow = {
+  teacher_id: string;
+  role: "main" | "assistant";
+  profiles: {
+    full_name: string | null;
+    email: string;
+    avatar_url: string | null;
+  };
+};
+
 export default async function CourseDetailPage({
   params,
 }: {
@@ -30,13 +46,45 @@ export default async function CourseDetailPage({
   const { id } = await params;
   const supabase = await createClient();
 
-  const { data: course } = await supabase
-    .from("courses")
-    .select("id, code, title, description, image_url, created_at")
-    .eq("id", id)
-    .single<Course>();
+  const [courseResp, assignmentsResp, allTeachersResp] = await Promise.all([
+    supabase
+      .from("courses")
+      .select("id, code, title, description, image_url, created_at")
+      .eq("id", id)
+      .single<Course>(),
+    supabase
+      .from("course_teachers")
+      .select(
+        "teacher_id, role, profiles!inner(full_name, email, avatar_url)",
+      )
+      .eq("course_id", id)
+      .order("role", { ascending: true })
+      .returns<AssignmentRow[]>(),
+    supabase
+      .from("profiles")
+      .select("id, full_name, email, avatar_url")
+      .eq("role", "teacher")
+      .order("full_name", { ascending: true })
+      .returns<AvailableTeacher[]>(),
+  ]);
 
+  const course = courseResp.data;
   if (!course) notFound();
+
+  const assignedRows = assignmentsResp.data ?? [];
+  const assignedIds = new Set(assignedRows.map((r) => r.teacher_id));
+
+  const assigned: AssignedTeacher[] = assignedRows.map((r) => ({
+    teacher_id: r.teacher_id,
+    role: r.role,
+    full_name: r.profiles.full_name,
+    email: r.profiles.email,
+    avatar_url: r.profiles.avatar_url,
+  }));
+
+  const available = (allTeachersResp.data ?? []).filter(
+    (t) => !assignedIds.has(t.id),
+  );
 
   return (
     <>
@@ -83,17 +131,20 @@ export default async function CourseDetailPage({
         </Card>
 
         <Card>
-          <CardHeader>
-            <CardTitle>Description</CardTitle>
+          <CardHeader className="flex flex-row items-start gap-3">
+            <FileText className="size-5 text-muted-foreground" />
+            <div>
+              <CardTitle>Description</CardTitle>
+              <CardDescription>
+                Click Edit description to update the public copy.
+              </CardDescription>
+            </div>
           </CardHeader>
           <CardContent>
-            <p className="text-sm whitespace-pre-wrap">
-              {course.description?.trim() || (
-                <span className="text-muted-foreground">
-                  No description yet.
-                </span>
-              )}
-            </p>
+            <DescriptionEdit
+              courseId={course.id}
+              initialDescription={course.description}
+            />
           </CardContent>
         </Card>
 
@@ -103,15 +154,17 @@ export default async function CourseDetailPage({
             <div>
               <CardTitle>Teachers</CardTitle>
               <CardDescription>
-                Assign main and assistant teachers to this course.
+                Assign one main teacher and any number of assistants. Teachers
+                can only enter grades for courses they are assigned to.
               </CardDescription>
             </div>
           </CardHeader>
           <CardContent>
-            <p className="text-sm text-muted-foreground">
-              Coming next — once the <code>course_teachers</code> migration is
-              applied, the assignment UI will live here.
-            </p>
+            <TeacherAssignment
+              courseId={course.id}
+              assigned={assigned}
+              available={available}
+            />
           </CardContent>
         </Card>
       </div>
