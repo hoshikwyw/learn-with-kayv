@@ -54,6 +54,7 @@ type NewsItem = {
   title: string;
   body: string;
   published_on: string;
+  image_url: string | null;
 };
 type Course = {
   id: string;
@@ -116,7 +117,7 @@ export default async function LandingPage() {
 
   // Fetch the actual featured news + courses preserving id-array order
   const [featuredNews, featuredCourses] = await Promise.all([
-    fetchByIds<NewsItem>(supabase, "news_items", "id, title, body, published_on", featuredNewsIds),
+    fetchByIds<NewsItem>(supabase, "news_items", "id, title, body, published_on, image_url", featuredNewsIds),
     fetchByIds<Course>(supabase, "courses", "id, code, title, description, image_url", featuredCourseIds),
   ]);
 
@@ -271,7 +272,18 @@ export default async function LandingPage() {
           </div>
           <div className="grid gap-4 md:grid-cols-3">
             {featuredNews.map((n) => (
-              <Card key={n.id} className="border-border/60">
+              <Card key={n.id} className="overflow-hidden border-border/60 pt-0">
+                {n.image_url && (
+                  <div className="relative aspect-[16/9] w-full overflow-hidden bg-muted">
+                    <Image
+                      src={n.image_url}
+                      alt={n.title}
+                      fill
+                      sizes="(max-width: 768px) 100vw, 33vw"
+                      className="object-cover"
+                    />
+                  </div>
+                )}
                 <CardHeader>
                   <p className="text-xs font-medium text-muted-foreground">
                     {new Date(n.published_on).toLocaleDateString(undefined, {
