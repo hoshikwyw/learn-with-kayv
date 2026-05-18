@@ -1,4 +1,4 @@
-import { GraduationCap, Calendar } from "lucide-react";
+import { GraduationCap, Calendar, BookOpen } from "lucide-react";
 import Link from "next/link";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 
@@ -15,6 +15,20 @@ export default function StudentOverviewPage() {
       </div>
 
       <div className="grid gap-4 md:grid-cols-2">
+        <Link href="/student/courses" className="group">
+          <Card className="h-full transition-colors group-hover:bg-muted/40">
+            <CardHeader className="flex flex-row items-center gap-3">
+              <div className="flex size-10 items-center justify-center rounded-lg bg-primary/10 text-primary">
+                <BookOpen className="size-5" />
+              </div>
+              <CardTitle>Courses</CardTitle>
+            </CardHeader>
+            <CardContent className="text-sm text-muted-foreground">
+              Browse all courses and manage your enrollments.
+            </CardContent>
+          </Card>
+        </Link>
+
         <Link href="/student/grades" className="group">
           <Card className="h-full transition-colors group-hover:bg-muted/40">
             <CardHeader className="flex flex-row items-center gap-3">

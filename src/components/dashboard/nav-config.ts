@@ -70,6 +70,7 @@ export const NAV_BY_ROLE: Record<Role, NavGroup[]> = {
     {
       label: "Learning",
       items: [
+        { title: "Courses", href: "/student/courses", icon: BookOpen },
         { title: "My Grades", href: "/student/grades", icon: GraduationCap },
         { title: "Timetable", href: "/student/timetable", icon: Calendar },
       ],
