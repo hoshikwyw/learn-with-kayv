@@ -175,40 +175,54 @@ export default async function LandingPage() {
       {/* Courses */}
       {featuredCourses.length > 0 && (
         <section id="courses" className="mx-auto w-full max-w-7xl px-6 py-20">
-          <div className="mb-10">
-            <h2 className="text-2xl font-semibold tracking-tight md:text-3xl">
-              Our courses
-            </h2>
-            <p className="mt-1 text-sm text-muted-foreground">
-              A taste of what we offer.
-            </p>
+          <div className="mb-10 flex items-end justify-between">
+            <div>
+              <h2 className="text-2xl font-semibold tracking-tight md:text-3xl">
+                Our courses
+              </h2>
+              <p className="mt-1 text-sm text-muted-foreground">
+                A taste of what we offer.
+              </p>
+            </div>
+            <Link
+              href="/courses"
+              className="flex items-center gap-1 text-sm font-medium text-muted-foreground hover:text-foreground"
+            >
+              View all <ArrowRight className="size-4" />
+            </Link>
           </div>
           <div className="grid gap-4 md:grid-cols-3">
             {featuredCourses.map((c) => (
-              <Card key={c.id} className="overflow-hidden border-border/60 pt-0">
-                {c.image_url && (
-                  <div className="relative aspect-[16/9] w-full overflow-hidden bg-muted">
-                    <Image
-                      src={c.image_url}
-                      alt={c.title}
-                      fill
-                      sizes="(max-width: 768px) 100vw, 33vw"
-                      className="object-cover"
-                    />
-                  </div>
-                )}
-                <CardHeader>
-                  <Badge variant="secondary" className="w-fit">
-                    {c.code}
-                  </Badge>
-                  <CardTitle className="text-base font-semibold leading-snug">
-                    {c.title}
-                  </CardTitle>
-                </CardHeader>
-                <CardContent className="text-sm text-muted-foreground">
-                  {c.description ?? "—"}
-                </CardContent>
-              </Card>
+              <Link key={c.id} href={`/courses/${c.id}`} className="group">
+                <Card className="overflow-hidden border-border/60 pt-0 transition-shadow group-hover:shadow-md">
+                  {c.image_url ? (
+                    <div className="relative aspect-[16/9] w-full overflow-hidden bg-muted">
+                      <Image
+                        src={c.image_url}
+                        alt={c.title}
+                        fill
+                        sizes="(max-width: 768px) 100vw, 33vw"
+                        className="object-cover transition-transform duration-300 group-hover:scale-[1.02]"
+                      />
+                    </div>
+                  ) : (
+                    <div className="flex aspect-[16/9] w-full items-center justify-center bg-muted">
+                      <BookOpen className="size-10 text-muted-foreground/30" />
+                    </div>
+                  )}
+                  <CardHeader>
+                    <Badge variant="secondary" className="w-fit">
+                      {c.code}
+                    </Badge>
+                    <CardTitle className="text-base font-semibold leading-snug">
+                      {c.title}
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent className="text-sm text-muted-foreground">
+                    {c.description ?? "—"}
+                  </CardContent>
+                </Card>
+              </Link>
             ))}
           </div>
         </section>

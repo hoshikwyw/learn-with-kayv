@@ -33,6 +33,9 @@ export default async function MarketingLayout({
             <Link href="/#about" className="hover:text-foreground">
               About
             </Link>
+            <Link href="/courses" className="hover:text-foreground">
+              Courses
+            </Link>
             <Link href="/#news" className="hover:text-foreground">
               News
             </Link>
