@@ -2,28 +2,28 @@
 
 import { useTransition } from "react";
 import Link from "next/link";
+import { Clock } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { enrollAction, unenrollAction } from "./actions";
 
+export type EnrollmentStatus = "pending" | "approved" | "declined" | null;
+
 interface EnrollButtonProps {
   courseId: string;
-  /** true = logged in as student and already enrolled */
-  enrolled: boolean;
-  /** true = logged in as student (not yet enrolled) */
+  status: EnrollmentStatus;
+  /** true = logged in as student */
   isStudent: boolean;
-  /** redirect path sent to /login when not signed in */
   redirectPath: string;
 }
 
 export function EnrollButton({
   courseId,
-  enrolled,
+  status,
   isStudent,
   redirectPath,
 }: EnrollButtonProps) {
   const [isPending, startTransition] = useTransition();
 
-  // Not a student → prompt to register
   if (!isStudent) {
     return (
       <Button
@@ -37,9 +37,18 @@ export function EnrollButton({
     );
   }
 
+  if (status === "pending") {
+    return (
+      <Button size="sm" variant="outline" disabled className="gap-1.5 shrink-0">
+        <Clock className="size-3.5" />
+        Pending Approval
+      </Button>
+    );
+  }
+
   function handleClick() {
     startTransition(async () => {
-      if (enrolled) {
+      if (status === "approved") {
         await unenrollAction(courseId);
       } else {
         await enrollAction(courseId);
@@ -50,11 +59,12 @@ export function EnrollButton({
   return (
     <Button
       size="sm"
-      variant={enrolled ? "outline" : "default"}
+      variant={status === "approved" ? "outline" : "default"}
       onClick={handleClick}
       disabled={isPending}
+      className="shrink-0"
     >
-      {isPending ? "..." : enrolled ? "Unenroll" : "Enroll"}
+      {isPending ? "..." : status === "approved" ? "Unenroll" : "Enroll"}
     </Button>
   );
 }

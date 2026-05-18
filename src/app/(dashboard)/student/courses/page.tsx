@@ -16,11 +16,16 @@ export default async function StudentCoursesPage() {
       .order("title"),
     supabase
       .from("student_enrollments")
-      .select("course_id")
+      .select("course_id, status")
       .eq("student_id", user!.id),
   ]);
 
-  const enrolledIds = new Set((enrollments ?? []).map((e) => e.course_id));
+  const enrollmentMap = new Map(
+    (enrollments ?? []).map((e) => [
+      e.course_id,
+      e.status as "pending" | "approved" | "declined",
+    ]),
+  );
 
   const list = (courses ?? []).map((c) => {
     const main = (
@@ -79,7 +84,7 @@ export default async function StudentCoursesPage() {
 
                 <EnrollButton
                   courseId={c.id}
-                  enrolled={enrolledIds.has(c.id)}
+                  status={enrollmentMap.get(c.id) ?? null}
                 />
               </li>
             ))}

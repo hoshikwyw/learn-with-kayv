@@ -69,7 +69,7 @@ export default async function PublicCourseDetailPage({
     isStudent && user
       ? supabase
           .from("student_enrollments")
-          .select("course_id")
+          .select("course_id, status")
           .eq("student_id", user.id)
           .eq("course_id", id)
           .maybeSingle()
@@ -80,7 +80,11 @@ export default async function PublicCourseDetailPage({
 
   const course = courseResp.data;
   const lessons = lessonsResp.data ?? [];
-  const enrolled = !!enrollmentResp.data;
+  const enrollmentStatus = (enrollmentResp.data?.status ?? null) as
+    | "pending"
+    | "approved"
+    | "declined"
+    | null;
 
   const teachers = (
     course.course_teachers as unknown as CourseTeacher[]
@@ -184,7 +188,7 @@ export default async function PublicCourseDetailPage({
               <div className="flex flex-col gap-2">
                 <EnrollButton
                   courseId={course.id}
-                  enrolled={enrolled}
+                  status={enrollmentStatus}
                   isStudent={isStudent}
                   redirectPath={`/courses/${course.id}`}
                 />
@@ -193,9 +197,19 @@ export default async function PublicCourseDetailPage({
                     Create a free account to enroll.
                   </p>
                 )}
-                {enrolled && (
+                {enrollmentStatus === "pending" && (
+                  <p className="text-center text-xs text-amber-600 dark:text-amber-400">
+                    Your request is awaiting admin approval.
+                  </p>
+                )}
+                {enrollmentStatus === "approved" && (
                   <p className="text-center text-xs text-muted-foreground">
                     You&apos;re enrolled in this course.
+                  </p>
+                )}
+                {enrollmentStatus === "declined" && (
+                  <p className="text-center text-xs text-destructive">
+                    Your previous request was declined. You can request again.
                   </p>
                 )}
               </div>

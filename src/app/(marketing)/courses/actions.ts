@@ -9,6 +9,15 @@ export async function enrollAction(courseId: string) {
   if (!user || profile?.role !== "student") throw new Error("Unauthorized");
 
   const supabase = await createClient();
+
+  // Remove any previous declined row so the student can re-request
+  await supabase
+    .from("student_enrollments")
+    .delete()
+    .eq("student_id", user.id)
+    .eq("course_id", courseId)
+    .eq("status", "declined");
+
   const { error } = await supabase
     .from("student_enrollments")
     .insert({ student_id: user.id, course_id: courseId });

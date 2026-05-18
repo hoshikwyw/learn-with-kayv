@@ -7,6 +7,7 @@ import {
   ClipboardList,
   FileText,
   Newspaper,
+  ClipboardCheck,
   type LucideIcon,
 } from "lucide-react";
 import type { Role } from "@/types/db";
@@ -35,6 +36,7 @@ export const NAV_BY_ROLE: Record<Role, NavGroup[]> = {
       items: [
         { title: "Users", href: "/admin/users", icon: Users },
         { title: "Courses", href: "/admin/courses", icon: BookOpen },
+        { title: "Enrollments", href: "/admin/enrollments", icon: ClipboardCheck },
         { title: "News", href: "/admin/news", icon: Newspaper },
       ],
     },

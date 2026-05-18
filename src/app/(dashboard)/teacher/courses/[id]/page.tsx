@@ -1,7 +1,7 @@
 import Link from "next/link";
 import Image from "next/image";
 import { notFound, redirect } from "next/navigation";
-import { ArrowLeft, BookOpen, FileText, PlayCircle } from "lucide-react";
+import { ArrowLeft, BookOpen, FileText, PlayCircle, Users } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import {
@@ -15,6 +15,10 @@ import { createClient } from "@/lib/supabase/server";
 import { getCurrentUserAndProfile } from "@/lib/supabase/session";
 import { LessonsSection } from "@/components/lessons/lessons-section";
 import type { Lesson } from "@/components/lessons/lesson-row";
+import {
+  EnrolledStudents,
+  type EnrolledStudent,
+} from "@/components/dashboard/enrolled-students";
 
 type Course = {
   id: string;
@@ -48,7 +52,7 @@ export default async function TeacherCourseDetailPage({
     redirect("/teacher");
   }
 
-  const [courseResp, lessonsResp] = await Promise.all([
+  const [courseResp, lessonsResp, enrolledResp] = await Promise.all([
     supabase
       .from("courses")
       .select("id, code, title, description, image_url")
@@ -60,6 +64,13 @@ export default async function TeacherCourseDetailPage({
       .eq("course_id", id)
       .order("display_order", { ascending: true })
       .returns<Lesson[]>(),
+    supabase
+      .from("student_enrollments")
+      .select("student_id, enrolled_at, profiles!student_id(full_name, email, avatar_url)")
+      .eq("course_id", id)
+      .eq("status", "approved")
+      .order("enrolled_at", { ascending: true })
+      .returns<EnrolledStudent[]>(),
   ]);
 
   const course = courseResp.data;
@@ -155,6 +166,21 @@ export default async function TeacherCourseDetailPage({
               lessons={lessonsResp.data ?? []}
               canEdit={true}
             />
+          </CardContent>
+        </Card>
+
+        <Card className="lg:col-span-2">
+          <CardHeader className="flex flex-row items-start gap-3">
+            <Users className="size-5 text-muted-foreground" />
+            <div>
+              <CardTitle>Enrolled students</CardTitle>
+              <CardDescription>
+                Students approved to take this course.
+              </CardDescription>
+            </div>
+          </CardHeader>
+          <CardContent>
+            <EnrolledStudents students={enrolledResp.data ?? []} />
           </CardContent>
         </Card>
       </div>

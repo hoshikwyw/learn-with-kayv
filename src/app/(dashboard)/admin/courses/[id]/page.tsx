@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { ArrowLeft, BookOpen, FileText, Image as ImageIcon, PlayCircle } from "lucide-react";
+import { ArrowLeft, BookOpen, FileText, Image as ImageIcon, PlayCircle, Users } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -20,6 +20,10 @@ import {
   type AssignedTeacher,
   type AvailableTeacher,
 } from "./teacher-assignment";
+import {
+  EnrolledStudents,
+  type EnrolledStudent,
+} from "@/components/dashboard/enrolled-students";
 
 type Course = {
   id: string;
@@ -48,7 +52,7 @@ export default async function CourseDetailPage({
   const { id } = await params;
   const supabase = await createClient();
 
-  const [courseResp, assignmentsResp, allTeachersResp, lessonsResp] = await Promise.all([
+  const [courseResp, assignmentsResp, allTeachersResp, lessonsResp, enrolledResp] = await Promise.all([
     supabase
       .from("courses")
       .select("id, code, title, description, image_url, created_at")
@@ -74,6 +78,13 @@ export default async function CourseDetailPage({
       .eq("course_id", id)
       .order("display_order", { ascending: true })
       .returns<Lesson[]>(),
+    supabase
+      .from("student_enrollments")
+      .select("student_id, enrolled_at, profiles!student_id(full_name, email, avatar_url)")
+      .eq("course_id", id)
+      .eq("status", "approved")
+      .order("enrolled_at", { ascending: true })
+      .returns<EnrolledStudent[]>(),
   ]);
 
   const course = courseResp.data;
@@ -192,6 +203,21 @@ export default async function CourseDetailPage({
               lessons={lessonsResp.data ?? []}
               canEdit={true}
             />
+          </CardContent>
+        </Card>
+
+        <Card className="lg:col-span-2">
+          <CardHeader className="flex flex-row items-start gap-3">
+            <Users className="size-5 text-muted-foreground" />
+            <div>
+              <CardTitle>Enrolled students</CardTitle>
+              <CardDescription>
+                Students whose enrollment has been approved.
+              </CardDescription>
+            </div>
+          </CardHeader>
+          <CardContent>
+            <EnrolledStudents students={enrolledResp.data ?? []} />
           </CardContent>
         </Card>
       </div>

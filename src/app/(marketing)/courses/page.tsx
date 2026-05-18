@@ -38,13 +38,16 @@ export default async function PublicCoursesPage() {
     isStudent && user
       ? supabase
           .from("student_enrollments")
-          .select("course_id")
+          .select("course_id, status")
           .eq("student_id", user.id)
       : Promise.resolve({ data: [] }),
   ]);
 
-  const enrolledIds = new Set(
-    (enrollmentsResp.data ?? []).map((e) => e.course_id),
+  const enrollmentMap = new Map(
+    (enrollmentsResp.data ?? []).map((e) => [
+      e.course_id,
+      e.status as "pending" | "approved" | "declined",
+    ]),
   );
 
   const list = (courses ?? []).map((c) => {
@@ -130,7 +133,7 @@ export default async function PublicCoursesPage() {
                   </Link>
                   <EnrollButton
                     courseId={c.id}
-                    enrolled={enrolledIds.has(c.id)}
+                    status={enrollmentMap.get(c.id) ?? null}
                     isStudent={isStudent}
                     redirectPath={`/courses/${c.id}`}
                   />
