@@ -1,90 +1,65 @@
 import Link from "next/link";
-import { revalidatePath } from "next/cache";
 import { ChevronRight } from "lucide-react";
-import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
 import { createClient } from "@/lib/supabase/server";
+import { CreateCourseDialog } from "./create-course-dialog";
 
 export const metadata = { title: "Courses" };
-
-async function createCourse(formData: FormData) {
-  "use server";
-  const title = String(formData.get("title") ?? "").trim();
-  const code = String(formData.get("code") ?? "").trim();
-  if (!title || !code) return;
-
-  const supabase = await createClient();
-  await supabase.from("courses").insert({ title, code });
-  revalidatePath("/admin/courses");
-}
 
 export default async function AdminCoursesPage() {
   const supabase = await createClient();
   const { data: courses } = await supabase
     .from("courses")
-    .select("id, title, code, created_at")
+    .select("id, title, code, created_at, course_teachers(role, profiles(full_name))")
     .order("created_at", { ascending: false });
+
+  const list = (courses ?? []).map((c) => {
+    const main = (c.course_teachers as { role: string; profiles: { full_name: string | null } | null }[])
+      ?.find((t) => t.role === "main");
+    return { ...c, teacherName: main?.profiles?.full_name ?? null };
+  });
 
   return (
     <>
-      <div>
-        <h2 className="text-2xl font-semibold tracking-tight">Courses</h2>
-        <p className="mt-1 text-sm text-muted-foreground">
-          Create and manage courses offered by the school.
-        </p>
+      <div className="flex items-start justify-between gap-4">
+        <div>
+          <h2 className="text-2xl font-semibold tracking-tight">Courses</h2>
+          <p className="mt-1 text-sm text-muted-foreground">
+            Create and manage courses offered by the school.
+          </p>
+        </div>
+        <CreateCourseDialog />
       </div>
 
-      <div className="grid gap-6 md:grid-cols-2">
-        <Card>
-          <CardHeader>
-            <CardTitle>Create a new course</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <form action={createCourse} className="space-y-4">
-              <div className="space-y-2">
-                <Label htmlFor="title">Title</Label>
-                <Input id="title" name="title" required placeholder="Algebra I" />
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="code">Code</Label>
-                <Input id="code" name="code" required placeholder="MATH-101" />
-              </div>
-              <Button type="submit">Create course</Button>
-            </form>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader>
-            <CardTitle>Existing courses</CardTitle>
-          </CardHeader>
-          <CardContent>
-            {(courses ?? []).length === 0 ? (
-              <p className="text-sm text-muted-foreground">
-                No courses yet. Create the first one.
-              </p>
-            ) : (
-              <ul className="divide-y divide-border">
-                {courses!.map((c) => (
-                  <li key={c.id}>
-                    <Link
-                      href={`/admin/courses/${c.id}`}
-                      className="group flex items-center justify-between gap-3 rounded-md px-2 py-2 -mx-2 transition hover:bg-muted/60"
-                    >
+      <div className="rounded-lg border bg-card">
+        {list.length === 0 ? (
+          <div className="py-16 text-center text-sm text-muted-foreground">
+            No courses yet. Create the first one.
+          </div>
+        ) : (
+          <ul className="divide-y divide-border">
+            {list.map((c) => (
+              <li key={c.id}>
+                <Link
+                  href={`/admin/courses/${c.id}`}
+                  className="group flex items-center justify-between gap-3 px-5 py-3.5 transition hover:bg-muted/60"
+                >
+                  <div className="flex items-center gap-3 min-w-0">
+                    <span className="shrink-0 rounded-md bg-muted px-2 py-0.5 text-xs font-medium text-muted-foreground">
+                      {c.code}
+                    </span>
+                    <div className="min-w-0">
                       <span className="truncate font-medium">{c.title}</span>
-                      <span className="flex items-center gap-2 text-xs text-muted-foreground">
-                        {c.code}
-                        <ChevronRight className="size-4 transition group-hover:translate-x-0.5" />
-                      </span>
-                    </Link>
-                  </li>
-                ))}
-              </ul>
-            )}
-          </CardContent>
-        </Card>
+                      {c.teacherName && (
+                        <p className="truncate text-xs text-muted-foreground">{c.teacherName}</p>
+                      )}
+                    </div>
+                  </div>
+                  <ChevronRight className="size-4 shrink-0 text-muted-foreground transition group-hover:translate-x-0.5" />
+                </Link>
+              </li>
+            ))}
+          </ul>
+        )}
       </div>
     </>
   );
