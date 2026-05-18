@@ -54,6 +54,14 @@ export async function updateProfileAction(
 
   if (error) return { error: error.message };
 
+  // If avatar changed and this teacher is featured, keep the snapshot in sync.
+  if (updates.avatar_url) {
+    await supabase
+      .from("featured_teachers")
+      .update({ avatar_url: updates.avatar_url })
+      .eq("profile_id", user.id);
+  }
+
   revalidatePath("/profile");
   revalidatePath("/", "layout");
   return {
