@@ -2,17 +2,10 @@
 
 import { useTransition } from "react";
 import toast from "react-hot-toast";
-import { MoreHorizontal, ShieldOff, ShieldCheck } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
 import { toggleBlockUserAction } from "./actions";
 
-export function UserRowActions({
+export function BlockToggleButton({
   userId,
   blocked,
 }: {
@@ -30,38 +23,18 @@ export function UserRowActions({
   }
 
   return (
-    <DropdownMenu>
-      <DropdownMenuTrigger
-        render={
-          <Button
-            variant="ghost"
-            size="icon-sm"
-            disabled={isPending}
-            aria-label="Row actions"
-          >
-            <MoreHorizontal className="size-4" />
-          </Button>
-        }
-      />
-      <DropdownMenuContent align="end" side="bottom">
-        <DropdownMenuItem
-          variant={blocked ? "default" : "destructive"}
-          disabled={isPending}
-          onClick={handleToggle}
-        >
-          {blocked ? (
-            <>
-              <ShieldCheck className="size-4" />
-              Unblock account
-            </>
-          ) : (
-            <>
-              <ShieldOff className="size-4" />
-              Block account
-            </>
-          )}
-        </DropdownMenuItem>
-      </DropdownMenuContent>
-    </DropdownMenu>
+    <Button
+      variant="ghost"
+      size="sm"
+      disabled={isPending}
+      onClick={handleToggle}
+      className={
+        blocked
+          ? "text-muted-foreground"
+          : "text-destructive hover:bg-destructive/10 hover:text-destructive"
+      }
+    >
+      {isPending ? "..." : blocked ? "Unblock" : "Block"}
+    </Button>
   );
 }

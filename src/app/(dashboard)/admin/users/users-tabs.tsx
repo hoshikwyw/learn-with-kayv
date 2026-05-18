@@ -1,8 +1,10 @@
 "use client";
 
 import { useState } from "react";
+import Link from "next/link";
 import { cn } from "@/lib/utils";
 import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 import {
   Table,
   TableBody,
@@ -13,7 +15,7 @@ import {
 } from "@/components/ui/table";
 import type { Profile } from "@/types/db";
 import { AddUserDialog } from "./add-user-dialog";
-import { UserRowActions } from "./user-row-actions";
+import { BlockToggleButton } from "./user-row-actions";
 
 const TABS = [
   { key: "admin", label: "Admins" },
@@ -37,13 +39,14 @@ function UserTable({
           <TableRow>
             <TableHead>Name</TableHead>
             <TableHead>Email</TableHead>
-            <TableHead className="text-right">Joined</TableHead>
-            <TableHead className="w-10" />
+            <TableHead>Joined</TableHead>
+            <TableHead className="w-20 text-center">Details</TableHead>
+            <TableHead className="w-24 text-center">Block</TableHead>
           </TableRow>
         </TableHeader>
         <TableBody>
           {users.map((u) => (
-            <TableRow key={u.id} data-blocked={u.blocked ? true : undefined}>
+            <TableRow key={u.id}>
               <TableCell className="font-medium">
                 <span className="flex items-center gap-2">
                   {u.full_name ?? "—"}
@@ -55,12 +58,21 @@ function UserTable({
                 </span>
               </TableCell>
               <TableCell className="text-muted-foreground">{u.email}</TableCell>
-              <TableCell className="text-right text-muted-foreground">
+              <TableCell className="text-muted-foreground">
                 {new Date(u.created_at).toLocaleDateString()}
               </TableCell>
-              <TableCell className="text-right">
+              <TableCell className="text-center">
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  render={<Link href={`/admin/users/${u.id}`} />}
+                >
+                  View
+                </Button>
+              </TableCell>
+              <TableCell className="text-center">
                 {u.id !== currentUserId && (
-                  <UserRowActions userId={u.id} blocked={u.blocked ?? false} />
+                  <BlockToggleButton userId={u.id} blocked={u.blocked ?? false} />
                 )}
               </TableCell>
             </TableRow>
@@ -68,7 +80,7 @@ function UserTable({
           {users.length === 0 && (
             <TableRow>
               <TableCell
-                colSpan={4}
+                colSpan={5}
                 className="py-10 text-center text-sm text-muted-foreground"
               >
                 No users in this group yet.
