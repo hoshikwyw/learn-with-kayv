@@ -43,11 +43,11 @@ function UserTable({
         </TableHeader>
         <TableBody>
           {users.map((u) => (
-            <TableRow key={u.id} data-blocked={u.blocked || undefined}>
+            <TableRow key={u.id} data-blocked={u.blocked ? true : undefined}>
               <TableCell className="font-medium">
                 <span className="flex items-center gap-2">
                   {u.full_name ?? "—"}
-                  {u.blocked && (
+                  {u.blocked === true && (
                     <Badge variant="destructive" className="text-xs">
                       Blocked
                     </Badge>
@@ -60,7 +60,7 @@ function UserTable({
               </TableCell>
               <TableCell className="text-right">
                 {u.id !== currentUserId && (
-                  <UserRowActions userId={u.id} blocked={u.blocked} />
+                  <UserRowActions userId={u.id} blocked={u.blocked ?? false} />
                 )}
               </TableCell>
             </TableRow>
@@ -137,9 +137,11 @@ export function UsersPageClient({
           ))}
         </nav>
 
-        <div className="pb-2">
-          <AddUserDialog />
-        </div>
+        {active !== "student" && (
+          <div className="pb-2">
+            <AddUserDialog />
+          </div>
+        )}
       </div>
 
       <UserTable users={data[active]} currentUserId={currentUserId} />
