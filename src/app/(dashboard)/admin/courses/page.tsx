@@ -13,7 +13,7 @@ export default async function AdminCoursesPage() {
     .order("created_at", { ascending: false });
 
   const list = (courses ?? []).map((c) => {
-    const main = (c.course_teachers as { role: string; profiles: { full_name: string | null } | null }[])
+    const main = (c.course_teachers as unknown as { role: string; profiles: { full_name: string | null } | null }[])
       ?.find((t) => t.role === "main");
     return { ...c, teacherName: main?.profiles?.full_name ?? null };
   });
