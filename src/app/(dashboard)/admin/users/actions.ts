@@ -63,3 +63,44 @@ export async function createUserAction(
     success: `${email} created as ${role}. Tell them to sign in with Google using this exact email.`,
   };
 }
+
+export async function toggleBlockUserAction(
+  targetId: string,
+  block: boolean,
+): Promise<State> {
+  const supabase = await createClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+  if (!user) return { error: "Not signed in." };
+  if (targetId === user.id) return { error: "You cannot block your own account." };
+
+  const { data: me } = await supabase
+    .from("profiles")
+    .select("role")
+    .eq("id", user.id)
+    .single<{ role: Role }>();
+  if (me?.role !== "admin") return { error: "Forbidden." };
+
+  const admin = createAdminClient();
+
+  const { error: profileErr } = await admin
+    .from("profiles")
+    .update({ blocked: block })
+    .eq("id", targetId);
+
+  if (profileErr) return { error: profileErr.message };
+
+  // Keep Supabase auth in sync — banning invalidates all existing tokens.
+  const { error: banErr } = await admin.auth.admin.updateUserById(targetId, {
+    ban_duration: block ? "87600h" : "none",
+  });
+
+  if (banErr) {
+    await admin.from("profiles").update({ blocked: !block }).eq("id", targetId);
+    return { error: banErr.message };
+  }
+
+  revalidatePath("/admin/users");
+  return { success: `Account ${block ? "blocked" : "unblocked"} successfully.` };
+}

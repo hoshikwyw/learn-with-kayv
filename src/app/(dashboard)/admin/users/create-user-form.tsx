@@ -14,18 +14,24 @@ import {
 } from "@/components/ui/select";
 import { createUserAction } from "./actions";
 
-export function CreateUserForm() {
+export function CreateUserForm({ onSuccess }: { onSuccess?: () => void }) {
   const [state, formAction, pending] = useActionState(
     createUserAction,
     undefined,
   );
   const seenRef = useRef<unknown>(undefined);
+  const onSuccessRef = useRef(onSuccess);
+  onSuccessRef.current = onSuccess;
 
   useEffect(() => {
     if (!state || state === seenRef.current) return;
     seenRef.current = state;
-    if (state.success) toast.success(state.success);
-    else if (state.error) toast.error(state.error);
+    if (state.success) {
+      toast.success(state.success);
+      onSuccessRef.current?.();
+    } else if (state.error) {
+      toast.error(state.error);
+    }
   }, [state]);
 
   return (
@@ -56,7 +62,7 @@ export function CreateUserForm() {
           </SelectTrigger>
           <SelectContent>
             <SelectItem value="teacher">Teacher</SelectItem>
-            <SelectItem value="admin">Admin</SelectItem>
+            <SelectItem value="admin">Administrator</SelectItem>
           </SelectContent>
         </Select>
       </div>
