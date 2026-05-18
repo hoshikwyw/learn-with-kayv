@@ -26,10 +26,13 @@ export function EnrollButton({
   // Not a student → prompt to register
   if (!isStudent) {
     return (
-      <Button asChild size="sm">
-        <Link href={`/login?redirect=${encodeURIComponent(redirectPath)}`}>
-          Register to Enroll
-        </Link>
+      <Button
+        size="sm"
+        render={
+          <Link href={`/login?redirect=${encodeURIComponent(redirectPath)}`} />
+        }
+      >
+        Register to Enroll
       </Button>
     );
   }
