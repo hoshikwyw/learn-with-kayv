@@ -6,7 +6,7 @@ import "./globals.css";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { ThemeProvider } from "@/components/theme/theme-provider";
 import { ToastFromSearchParams } from "@/components/toast/toast-from-search-params";
-
+import NextTopLoader from "nextjs-toploader";
 const sans = Plus_Jakarta_Sans({
   variable: "--font-sans",
   subsets: ["latin"],
@@ -46,6 +46,11 @@ export default function RootLayout({
           enableSystem
           disableTransitionOnChange
         >
+          <NextTopLoader
+            color="hsl(var(--primary))"
+            showSpinner={false}
+            height={3}
+          />
           <TooltipProvider delay={200}>{children}</TooltipProvider>
           <Toaster
             position="top-right"
