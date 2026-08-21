@@ -15,6 +15,7 @@ import {
 } from "@/components/ui/card";
 import { createClient } from "@/lib/supabase/server";
 import { approveEnrollmentAction, declineEnrollmentAction } from "./actions";
+import { displayName, formatDate, initials } from "@/lib/format";
 
 export const metadata = { title: "Enrollments" };
 
@@ -33,16 +34,6 @@ type EnrollmentRow = {
     title: string;
   };
 };
-
-function initials(name: string | null, email: string) {
-  const source = name ?? email;
-  return source
-    .split(" ")
-    .map((p) => p[0])
-    .slice(0, 2)
-    .join("")
-    .toUpperCase();
-}
 
 const STATUS_CONFIG = {
   pending: {
@@ -181,16 +172,16 @@ function EnrollmentRow({ enrollment: e }: { enrollment: EnrollmentRow }) {
           {e.profiles.avatar_url && (
             <AvatarImage
               src={e.profiles.avatar_url}
-              alt={e.profiles.full_name ?? e.profiles.email}
+              alt={displayName(e.profiles)}
             />
           )}
           <AvatarFallback className="text-xs">
-            {initials(e.profiles.full_name, e.profiles.email)}
+            {initials(displayName(e.profiles))}
           </AvatarFallback>
         </Avatar>
         <div className="min-w-0">
           <p className="truncate font-medium text-sm">
-            {e.profiles.full_name ?? e.profiles.email}
+            {displayName(e.profiles)}
           </p>
           <p className="truncate text-xs text-muted-foreground">
             {e.profiles.email}
@@ -209,11 +200,7 @@ function EnrollmentRow({ enrollment: e }: { enrollment: EnrollmentRow }) {
       {/* Date + status + actions */}
       <div className="flex items-center gap-3 ml-auto shrink-0">
         <span className="text-xs text-muted-foreground hidden sm:inline">
-          {new Date(e.enrolled_at).toLocaleDateString(undefined, {
-            month: "short",
-            day: "numeric",
-            year: "numeric",
-          })}
+          {formatDate(e.enrolled_at)}
         </span>
 
         <Badge variant={cfg.variant} className="gap-1">

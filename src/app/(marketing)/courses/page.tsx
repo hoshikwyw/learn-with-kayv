@@ -5,7 +5,8 @@ import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { createClient } from "@/lib/supabase/server";
 import { getCurrentUserAndProfile } from "@/lib/supabase/session";
-import { EnrollButton } from "./enroll-button";
+import { EnrollButton } from "@/components/courses/enroll-button";
+import type { EnrollmentStatus } from "@/types/db";
 
 export const metadata = { title: "Courses" };
 
@@ -46,7 +47,7 @@ export default async function PublicCoursesPage() {
   const enrollmentMap = new Map(
     (enrollmentsResp.data ?? []).map((e) => [
       e.course_id,
-      e.status as "pending" | "approved" | "declined",
+      e.status as EnrollmentStatus,
     ]),
   );
 

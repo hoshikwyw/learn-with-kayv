@@ -16,6 +16,7 @@ import {
 import type { Profile } from "@/types/db";
 import { AddUserDialog } from "./add-user-dialog";
 import { BlockToggleButton } from "./user-row-actions";
+import { formatDate } from "@/lib/format";
 
 const TABS = [
   { key: "admin", label: "Admins" },
@@ -59,7 +60,7 @@ function UserTable({
               </TableCell>
               <TableCell className="text-muted-foreground">{u.email}</TableCell>
               <TableCell className="text-muted-foreground">
-                {new Date(u.created_at).toLocaleDateString()}
+                {formatDate(u.created_at)}
               </TableCell>
               <TableCell className="text-center">
                 <Button

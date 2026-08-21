@@ -4,34 +4,37 @@ import { useTransition } from "react";
 import Link from "next/link";
 import { Clock } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { enrollAction, unenrollAction } from "./actions";
+import { enrollAction, unenrollAction } from "@/lib/actions/enrollment";
+import type { EnrollmentStatus } from "@/types/db";
 
-export type EnrollmentStatus = "pending" | "approved" | "declined" | null;
-
-interface EnrollButtonProps {
+type EnrollButtonProps = {
   courseId: string;
-  status: EnrollmentStatus;
-  /** true = logged in as student */
-  isStudent: boolean;
-  redirectPath: string;
-}
+  /** The signed-in student's current status for this course, or null. */
+  status: EnrollmentStatus | null;
+  /**
+   * Whether the viewer is a signed-in student. Public pages pass `false` for
+   * visitors and for staff, who get a sign-in link instead of an Enroll button.
+   * Defaults to true for dashboard pages, where only students ever see this.
+   */
+  isStudent?: boolean;
+  /** Where to send a visitor back to after they sign in. */
+  redirectPath?: string;
+};
 
 export function EnrollButton({
   courseId,
   status,
-  isStudent,
+  isStudent = true,
   redirectPath,
 }: EnrollButtonProps) {
   const [isPending, startTransition] = useTransition();
 
   if (!isStudent) {
+    const href = redirectPath
+      ? `/login?redirect=${encodeURIComponent(redirectPath)}`
+      : "/login";
     return (
-      <Button
-        size="sm"
-        render={
-          <Link href={`/login?redirect=${encodeURIComponent(redirectPath)}`} />
-        }
-      >
+      <Button size="sm" render={<Link href={href} />}>
         Register to Enroll
       </Button>
     );

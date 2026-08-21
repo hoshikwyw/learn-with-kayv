@@ -8,6 +8,7 @@ import { Separator } from "@/components/ui/separator";
 import { AppSidebar } from "@/components/dashboard/app-sidebar";
 import { ThemeToggle } from "@/components/theme/theme-toggle";
 import { getCurrentUserAndProfile } from "@/lib/supabase/session";
+import { displayName } from "@/lib/format";
 
 export default async function DashboardLayout({
   children,
@@ -35,7 +36,7 @@ export default async function DashboardLayout({
           <SidebarTrigger className="-ml-1" />
           <Separator orientation="vertical" className="mr-2 h-4" />
           <h1 className="text-sm font-medium text-muted-foreground">
-            {profile.full_name ?? profile.email}
+            {displayName(profile)}
           </h1>
           <div className="ml-auto">
             <ThemeToggle />

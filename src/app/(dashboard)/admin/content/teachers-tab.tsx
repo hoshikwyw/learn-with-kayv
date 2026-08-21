@@ -14,6 +14,7 @@ import {
   syncFeaturedTeacherFromProfileAction,
   updateFeaturedTeacherAction,
 } from "./actions";
+import { displayName, initials } from "@/lib/format";
 
 export type FeaturedTeacher = {
   id: string;
@@ -89,7 +90,7 @@ export function TeachersTab({
               >
                 <Avatar className="size-9">
                   {t.avatar_url && <AvatarImage src={t.avatar_url} alt={t.email} />}
-                  <AvatarFallback>{initials(t.full_name ?? t.email)}</AvatarFallback>
+                  <AvatarFallback>{initials(displayName(t))}</AvatarFallback>
                 </Avatar>
                 <div className="flex-1">
                   <p className="font-medium">{t.full_name ?? "—"}</p>
@@ -250,13 +251,4 @@ function FeatureTeacherButton({ profileId }: { profileId: string }) {
       Feature
     </Button>
   );
-}
-
-function initials(value: string) {
-  return value
-    .split(" ")
-    .map((p) => p[0])
-    .slice(0, 2)
-    .join("")
-    .toUpperCase();
 }

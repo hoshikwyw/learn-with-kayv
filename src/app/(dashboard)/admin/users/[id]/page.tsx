@@ -12,6 +12,7 @@ import {
 } from "@/components/ui/avatar";
 import { ROLE_LABEL } from "@/config/site";
 import type { Profile } from "@/types/db";
+import { displayName, formatDate, initials } from "@/lib/format";
 
 export const metadata = { title: "User details" };
 
@@ -30,15 +31,6 @@ const POSITION_LABEL: Record<"main" | "assistant", string> = {
   main: "Main teacher",
   assistant: "Assistant",
 };
-
-function initials(value: string) {
-  return value
-    .split(" ")
-    .map((p) => p[0])
-    .slice(0, 2)
-    .join("")
-    .toUpperCase();
-}
 
 export default async function UserDetailPage({
   params,
@@ -64,7 +56,7 @@ export default async function UserDetailPage({
 
   const courseList = (assignments ?? []).filter((a) => a.courses !== null);
 
-  const displayName = profile.full_name ?? profile.email;
+  const name = displayName(profile);
   const canTeach = profile.role === "teacher" || profile.role === "admin";
 
   return (
@@ -84,14 +76,14 @@ export default async function UserDetailPage({
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:gap-6">
         <Avatar className="size-20 text-2xl">
           {profile.avatar_url && (
-            <AvatarImage src={profile.avatar_url} alt={displayName} />
+            <AvatarImage src={profile.avatar_url} alt={name} />
           )}
-          <AvatarFallback>{initials(displayName)}</AvatarFallback>
+          <AvatarFallback>{initials(name)}</AvatarFallback>
         </Avatar>
 
         <div className="flex flex-col gap-1.5">
           <div className="flex flex-wrap items-center gap-2">
-            <h2 className="text-2xl font-semibold tracking-tight">{displayName}</h2>
+            <h2 className="text-2xl font-semibold tracking-tight">{name}</h2>
             {profile.blocked && (
               <Badge variant="destructive" className="gap-1">
                 <ShieldAlert className="size-3" />
@@ -127,11 +119,7 @@ export default async function UserDetailPage({
             />
             <Row
               label="Joined"
-              value={new Date(profile.created_at).toLocaleDateString(undefined, {
-                year: "numeric",
-                month: "long",
-                day: "numeric",
-              })}
+              value={formatDate(profile.created_at)}
             />
           </CardContent>
         </Card>
@@ -190,11 +178,7 @@ export default async function UserDetailPage({
                           </div>
                           <p className="mt-0.5 text-xs text-muted-foreground">
                             Assigned{" "}
-                            {new Date(a.assigned_at).toLocaleDateString(undefined, {
-                              year: "numeric",
-                              month: "short",
-                              day: "numeric",
-                            })}
+                            {formatDate(a.assigned_at)}
                           </p>
                         </div>
 

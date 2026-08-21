@@ -8,7 +8,8 @@ import { Separator } from "@/components/ui/separator";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { createClient } from "@/lib/supabase/server";
 import { getCurrentUserAndProfile } from "@/lib/supabase/session";
-import { EnrollButton } from "../enroll-button";
+import { EnrollButton } from "@/components/courses/enroll-button";
+import { initials } from "@/lib/format";
 
 type Lesson = {
   id: string;
@@ -91,16 +92,6 @@ export default async function PublicCourseDetailPage({
   )?.filter((t) => t.profiles);
   const mainTeacher = teachers?.find((t) => t.role === "main");
   const assistants = teachers?.filter((t) => t.role === "assistant") ?? [];
-
-  function initials(name: string | null) {
-    if (!name) return "?";
-    return name
-      .split(" ")
-      .map((p) => p[0])
-      .slice(0, 2)
-      .join("")
-      .toUpperCase();
-  }
 
   return (
     <div className="mx-auto w-full max-w-5xl px-6 py-12">

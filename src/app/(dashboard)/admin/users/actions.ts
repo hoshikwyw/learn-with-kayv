@@ -1,16 +1,22 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
-import { createClient } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/admin";
+import { authorize } from "@/lib/auth/guards";
+import type { ActionState } from "@/lib/actions/state";
 import type { Role } from "@/types/db";
 
-type State = { error?: string; success?: string } | undefined;
-
 export async function createUserAction(
-  _prev: State,
+  _prev: ActionState,
   formData: FormData,
-): Promise<State> {
+): Promise<ActionState> {
+  // Defense in depth: middleware gates /admin/*, but a Server Action is a POST
+  // endpoint that can be invoked directly — and the service-role client below
+  // bypasses RLS entirely, so this is the only check standing between a
+  // non-admin and user creation.
+  const auth = await authorize("admin");
+  if (!auth.ok) return { error: auth.error };
+
   const email = String(formData.get("email") ?? "").trim().toLowerCase();
   const fullName = String(formData.get("full_name") ?? "").trim();
   const role = String(formData.get("role") ?? "") as Role;
@@ -21,21 +27,6 @@ export async function createUserAction(
   if (role !== "teacher" && role !== "admin") {
     return { error: "Role must be teacher or admin." };
   }
-
-  // Defense in depth: confirm the caller is actually an admin.
-  // (Middleware already gates /admin/*, but the service-role client bypasses RLS.)
-  const supabase = await createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-  if (!user) return { error: "Not signed in." };
-
-  const { data: me } = await supabase
-    .from("profiles")
-    .select("role")
-    .eq("id", user.id)
-    .single<{ role: Role }>();
-  if (me?.role !== "admin") return { error: "Forbidden." };
 
   const admin = createAdminClient();
   const { data: created, error: createErr } = await admin.auth.admin.createUser({
@@ -67,20 +58,12 @@ export async function createUserAction(
 export async function toggleBlockUserAction(
   targetId: string,
   block: boolean,
-): Promise<State> {
-  const supabase = await createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-  if (!user) return { error: "Not signed in." };
-  if (targetId === user.id) return { error: "You cannot block your own account." };
-
-  const { data: me } = await supabase
-    .from("profiles")
-    .select("role")
-    .eq("id", user.id)
-    .single<{ role: Role }>();
-  if (me?.role !== "admin") return { error: "Forbidden." };
+): Promise<ActionState> {
+  const auth = await authorize("admin");
+  if (!auth.ok) return { error: auth.error };
+  if (targetId === auth.user.id) {
+    return { error: "You cannot block your own account." };
+  }
 
   const admin = createAdminClient();
 

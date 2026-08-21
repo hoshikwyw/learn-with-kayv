@@ -10,6 +10,7 @@ import {
   moveFeaturedNewsAction,
   removeFeaturedNewsAction,
 } from "./actions";
+import { formatDate } from "@/lib/format";
 
 export type NewsItem = {
   id: string;
@@ -60,7 +61,7 @@ export function NewsTab({
                 <div className="flex-1">
                   <p className="font-medium">{n.title}</p>
                   <p className="text-xs text-muted-foreground">
-                    {new Date(n.published_on).toLocaleDateString()}
+                    {formatDate(n.published_on)}
                   </p>
                 </div>
                 <div className="flex gap-1">
@@ -117,7 +118,7 @@ export function NewsTab({
                 <div className="flex-1">
                   <p className="font-medium">{n.title}</p>
                   <p className="text-xs text-muted-foreground">
-                    {new Date(n.published_on).toLocaleDateString()}
+                    {formatDate(n.published_on)}
                   </p>
                 </div>
                 <FeatureNewsButton id={n.id} />

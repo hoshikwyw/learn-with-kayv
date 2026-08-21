@@ -3,10 +3,10 @@
 import { revalidatePath } from "next/cache";
 import { createClient } from "@/lib/supabase/server";
 import { uploadImage, validateImage } from "@/lib/supabase/storage";
+import { authorize, requireAdmin } from "@/lib/auth/guards";
+import type { ActionState } from "@/lib/actions/state";
 
 const COURSE_MAX_BYTES = 5 * 1024 * 1024;
-
-type State = { error?: string; success?: string } | undefined;
 
 function bump(courseId: string) {
   revalidatePath(`/admin/courses/${courseId}`);
@@ -17,9 +17,12 @@ function bump(courseId: string) {
 // ─── IMAGE ───────────────────────────────────────────────────────────────────
 
 export async function uploadCourseImageAction(
-  _prev: State,
+  _prev: ActionState,
   formData: FormData,
-): Promise<State> {
+): Promise<ActionState> {
+  const auth = await authorize("admin");
+  if (!auth.ok) return { error: auth.error };
+
   const courseId = String(formData.get("course_id") ?? "");
   const file = formData.get("image");
 
@@ -55,9 +58,12 @@ export async function uploadCourseImageAction(
 // ─── DESCRIPTION ─────────────────────────────────────────────────────────────
 
 export async function updateCourseDescriptionAction(
-  _prev: State,
+  _prev: ActionState,
   formData: FormData,
-): Promise<State> {
+): Promise<ActionState> {
+  const auth = await authorize("admin");
+  if (!auth.ok) return { error: auth.error };
+
   const courseId = String(formData.get("course_id") ?? "");
   const description = String(formData.get("description") ?? "").trim();
 
@@ -81,9 +87,12 @@ export async function updateCourseDescriptionAction(
 // ─── TEACHER ASSIGNMENT ──────────────────────────────────────────────────────
 
 export async function assignTeacherAction(
-  _prev: State,
+  _prev: ActionState,
   formData: FormData,
-): Promise<State> {
+): Promise<ActionState> {
+  const auth = await authorize("admin");
+  if (!auth.ok) return { error: auth.error };
+
   const courseId = String(formData.get("course_id") ?? "");
   const teacherId = String(formData.get("teacher_id") ?? "");
   const role = String(formData.get("role") ?? "");
@@ -130,6 +139,8 @@ export async function assignTeacherAction(
 }
 
 export async function unassignTeacherAction(formData: FormData) {
+  await requireAdmin();
+
   const courseId = String(formData.get("course_id") ?? "");
   const teacherId = String(formData.get("teacher_id") ?? "");
   if (!courseId || !teacherId) return;

@@ -2,8 +2,8 @@
 
 import { revalidatePath } from "next/cache";
 import { createClient } from "@/lib/supabase/server";
-
-type State = { error?: string; success?: string } | undefined;
+import { authorize, requireAdmin } from "@/lib/auth/guards";
+import type { ActionState } from "@/lib/actions/state";
 
 function bumpMarketing() {
   revalidatePath("/", "layout"); // marketing page reads multiple tables; nuke layout cache
@@ -13,9 +13,12 @@ function bumpMarketing() {
 // ─── HERO ────────────────────────────────────────────────────────────────────
 
 export async function updateHeroAction(
-  _prev: State,
+  _prev: ActionState,
   formData: FormData,
-): Promise<State> {
+): Promise<ActionState> {
+  const auth = await authorize("admin");
+  if (!auth.ok) return { error: auth.error };
+
   const badge = String(formData.get("badge") ?? "").trim();
   const title = String(formData.get("title") ?? "").trim();
   const subtitle = String(formData.get("subtitle") ?? "").trim();
@@ -41,9 +44,12 @@ export async function updateHeroAction(
 // ─── ABOUT ITEMS ─────────────────────────────────────────────────────────────
 
 export async function createAboutItemAction(
-  _prev: State,
+  _prev: ActionState,
   formData: FormData,
-): Promise<State> {
+): Promise<ActionState> {
+  const auth = await authorize("admin");
+  if (!auth.ok) return { error: auth.error };
+
   const icon = String(formData.get("icon") ?? "").trim();
   const title = String(formData.get("title") ?? "").trim();
   const body = String(formData.get("body") ?? "").trim();
@@ -73,9 +79,12 @@ export async function createAboutItemAction(
 }
 
 export async function updateAboutItemAction(
-  _prev: State,
+  _prev: ActionState,
   formData: FormData,
-): Promise<State> {
+): Promise<ActionState> {
+  const auth = await authorize("admin");
+  if (!auth.ok) return { error: auth.error };
+
   const id = String(formData.get("id") ?? "");
   const icon = String(formData.get("icon") ?? "").trim();
   const title = String(formData.get("title") ?? "").trim();
@@ -96,6 +105,7 @@ export async function updateAboutItemAction(
 }
 
 export async function deleteAboutItemAction(formData: FormData) {
+  await requireAdmin();
   const id = String(formData.get("id") ?? "");
   if (!id) return;
   const supabase = await createClient();
@@ -104,6 +114,7 @@ export async function deleteAboutItemAction(formData: FormData) {
 }
 
 export async function moveAboutItemAction(formData: FormData) {
+  await requireAdmin();
   const id = String(formData.get("id") ?? "");
   const direction = String(formData.get("direction") ?? ""); // "up" | "down"
   if (!id || (direction !== "up" && direction !== "down")) return;
@@ -152,7 +163,10 @@ async function readFeaturedIds(key: string): Promise<string[]> {
   return Array.isArray(data?.value) ? data.value : [];
 }
 
-export async function addFeaturedNewsAction(formData: FormData): Promise<State> {
+export async function addFeaturedNewsAction(formData: FormData): Promise<ActionState> {
+  const auth = await authorize("admin");
+  if (!auth.ok) return { error: auth.error };
+
   const id = String(formData.get("id") ?? "");
   if (!id) return { error: "Missing id." };
   const ids = await readFeaturedIds("featured_news_ids");
@@ -162,6 +176,7 @@ export async function addFeaturedNewsAction(formData: FormData): Promise<State> 
 }
 
 export async function removeFeaturedNewsAction(formData: FormData) {
+  await requireAdmin();
   const id = String(formData.get("id") ?? "");
   if (!id) return;
   const ids = await readFeaturedIds("featured_news_ids");
@@ -169,6 +184,7 @@ export async function removeFeaturedNewsAction(formData: FormData) {
 }
 
 export async function moveFeaturedNewsAction(formData: FormData) {
+  await requireAdmin();
   const id = String(formData.get("id") ?? "");
   const direction = String(formData.get("direction") ?? "");
   if (!id || (direction !== "up" && direction !== "down")) return;
@@ -182,7 +198,10 @@ export async function moveFeaturedNewsAction(formData: FormData) {
   await setFeatured("featured_news_ids", next);
 }
 
-export async function addFeaturedCourseAction(formData: FormData): Promise<State> {
+export async function addFeaturedCourseAction(formData: FormData): Promise<ActionState> {
+  const auth = await authorize("admin");
+  if (!auth.ok) return { error: auth.error };
+
   const id = String(formData.get("id") ?? "");
   if (!id) return { error: "Missing id." };
   const ids = await readFeaturedIds("featured_course_ids");
@@ -192,6 +211,7 @@ export async function addFeaturedCourseAction(formData: FormData): Promise<State
 }
 
 export async function removeFeaturedCourseAction(formData: FormData) {
+  await requireAdmin();
   const id = String(formData.get("id") ?? "");
   if (!id) return;
   const ids = await readFeaturedIds("featured_course_ids");
@@ -199,6 +219,7 @@ export async function removeFeaturedCourseAction(formData: FormData) {
 }
 
 export async function moveFeaturedCourseAction(formData: FormData) {
+  await requireAdmin();
   const id = String(formData.get("id") ?? "");
   const direction = String(formData.get("direction") ?? "");
   if (!id || (direction !== "up" && direction !== "down")) return;
@@ -214,7 +235,10 @@ export async function moveFeaturedCourseAction(formData: FormData) {
 
 // ─── FEATURED TEACHERS (snapshot rows) ───────────────────────────────────────
 
-export async function addFeaturedTeacherAction(formData: FormData): Promise<State> {
+export async function addFeaturedTeacherAction(formData: FormData): Promise<ActionState> {
+  const auth = await authorize("admin");
+  if (!auth.ok) return { error: auth.error };
+
   const profileId = String(formData.get("profile_id") ?? "");
   if (!profileId) return { error: "Missing profile id." };
 
@@ -257,9 +281,12 @@ export async function addFeaturedTeacherAction(formData: FormData): Promise<Stat
 }
 
 export async function updateFeaturedTeacherAction(
-  _prev: State,
+  _prev: ActionState,
   formData: FormData,
-): Promise<State> {
+): Promise<ActionState> {
+  const auth = await authorize("admin");
+  if (!auth.ok) return { error: auth.error };
+
   const id = String(formData.get("id") ?? "");
   const fullName = String(formData.get("full_name") ?? "").trim();
   const bio = String(formData.get("bio") ?? "").trim();
@@ -281,6 +308,7 @@ export async function updateFeaturedTeacherAction(
 }
 
 export async function removeFeaturedTeacherAction(formData: FormData) {
+  await requireAdmin();
   const id = String(formData.get("id") ?? "");
   if (!id) return;
   const supabase = await createClient();
@@ -289,6 +317,7 @@ export async function removeFeaturedTeacherAction(formData: FormData) {
 }
 
 export async function moveFeaturedTeacherAction(formData: FormData) {
+  await requireAdmin();
   const id = String(formData.get("id") ?? "");
   const direction = String(formData.get("direction") ?? "");
   if (!id || (direction !== "up" && direction !== "down")) return;
@@ -316,6 +345,7 @@ export async function moveFeaturedTeacherAction(formData: FormData) {
 }
 
 export async function syncFeaturedTeacherFromProfileAction(formData: FormData) {
+  await requireAdmin();
   const id = String(formData.get("id") ?? "");
   if (!id) return;
   const supabase = await createClient();

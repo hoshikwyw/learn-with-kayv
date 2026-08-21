@@ -3,6 +3,7 @@ import {
   AvatarFallback,
   AvatarImage,
 } from "@/components/ui/avatar";
+import { displayName, formatDate, initials } from "@/lib/format";
 
 export type EnrolledStudent = {
   student_id: string;
@@ -13,16 +14,6 @@ export type EnrolledStudent = {
     avatar_url: string | null;
   };
 };
-
-function initials(name: string | null, email: string) {
-  const src = name ?? email;
-  return src
-    .split(" ")
-    .map((p) => p[0])
-    .slice(0, 2)
-    .join("")
-    .toUpperCase();
-}
 
 export function EnrolledStudents({
   students,
@@ -52,27 +43,23 @@ export function EnrolledStudents({
               {s.profiles.avatar_url && (
                 <AvatarImage
                   src={s.profiles.avatar_url}
-                  alt={s.profiles.full_name ?? s.profiles.email}
+                  alt={displayName(s.profiles)}
                 />
               )}
               <AvatarFallback className="text-xs">
-                {initials(s.profiles.full_name, s.profiles.email)}
+                {initials(displayName(s.profiles))}
               </AvatarFallback>
             </Avatar>
             <div className="min-w-0">
               <p className="truncate text-sm font-medium">
-                {s.profiles.full_name ?? s.profiles.email}
+                {displayName(s.profiles)}
               </p>
               <p className="truncate text-xs text-muted-foreground">
                 {s.profiles.email}
               </p>
             </div>
             <span className="ml-auto shrink-0 text-xs text-muted-foreground">
-              {new Date(s.enrolled_at).toLocaleDateString(undefined, {
-                month: "short",
-                day: "numeric",
-                year: "numeric",
-              })}
+              {formatDate(s.enrolled_at)}
             </span>
           </li>
         ))}

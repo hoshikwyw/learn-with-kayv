@@ -2,12 +2,7 @@
 
 import { revalidatePath } from "next/cache";
 import { createClient } from "@/lib/supabase/server";
-import { getCurrentUserAndProfile } from "@/lib/supabase/session";
-
-async function requireAdmin() {
-  const { profile } = await getCurrentUserAndProfile();
-  if (profile?.role !== "admin") throw new Error("Unauthorized");
-}
+import { requireAdmin } from "@/lib/auth/guards";
 
 export async function approveEnrollmentAction(
   studentId: string,

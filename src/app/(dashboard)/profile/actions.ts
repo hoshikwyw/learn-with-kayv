@@ -3,15 +3,19 @@
 import { revalidatePath } from "next/cache";
 import { createClient } from "@/lib/supabase/server";
 import { uploadImage, validateImage } from "@/lib/supabase/storage";
+import { authorize } from "@/lib/auth/guards";
+import type { ActionState } from "@/lib/actions/state";
 
 const AVATAR_MAX_BYTES = 2 * 1024 * 1024;
 
-type State = { error?: string; success?: string } | undefined;
-
 export async function updateProfileAction(
-  _prev: State,
+  _prev: ActionState,
   formData: FormData,
-): Promise<State> {
+): Promise<ActionState> {
+  const auth = await authorize();
+  if (!auth.ok) return { error: auth.error };
+  const { user } = auth;
+
   const fullName = String(formData.get("full_name") ?? "").trim();
   const file = formData.get("avatar");
 
@@ -23,11 +27,6 @@ export async function updateProfileAction(
   }
 
   const supabase = await createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-  if (!user) return { error: "Not signed in." };
-
   const validation = validateImage(file, AVATAR_MAX_BYTES);
   if (validation.kind === "error") return { error: validation.message };
 

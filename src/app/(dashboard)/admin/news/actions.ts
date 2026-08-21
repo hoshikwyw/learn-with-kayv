@@ -3,8 +3,8 @@
 import { revalidatePath } from "next/cache";
 import { createClient } from "@/lib/supabase/server";
 import { validateImage, uploadImage } from "@/lib/supabase/storage";
-
-type State = { error?: string; success?: string } | undefined;
+import { authorize, requireAdmin } from "@/lib/auth/guards";
+import type { ActionState } from "@/lib/actions/state";
 
 const NEWS_MAX_BYTES = 5 * 1024 * 1024;
 
@@ -15,9 +15,12 @@ function bump() {
 }
 
 export async function createNewsAction(
-  _prev: State,
+  _prev: ActionState,
   formData: FormData,
-): Promise<State> {
+): Promise<ActionState> {
+  const auth = await authorize("admin");
+  if (!auth.ok) return { error: auth.error };
+
   const title = String(formData.get("title") ?? "").trim();
   const body = String(formData.get("body") ?? "").trim();
   const publishedOn = String(formData.get("published_on") ?? "").trim();
@@ -59,9 +62,12 @@ export async function createNewsAction(
 }
 
 export async function updateNewsAction(
-  _prev: State,
+  _prev: ActionState,
   formData: FormData,
-): Promise<State> {
+): Promise<ActionState> {
+  const auth = await authorize("admin");
+  if (!auth.ok) return { error: auth.error };
+
   const id = String(formData.get("id") ?? "");
   const title = String(formData.get("title") ?? "").trim();
   const body = String(formData.get("body") ?? "").trim();
@@ -103,6 +109,7 @@ export async function updateNewsAction(
 }
 
 export async function deleteNewsAction(formData: FormData) {
+  await requireAdmin();
   const id = String(formData.get("id") ?? "");
   if (!id) return;
 

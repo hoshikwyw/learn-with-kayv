@@ -24,6 +24,7 @@ import {
   EnrolledStudents,
   type EnrolledStudent,
 } from "@/components/dashboard/enrolled-students";
+import { formatDate } from "@/lib/format";
 
 type Course = {
   id: string;
@@ -126,7 +127,7 @@ export default async function CourseDetailPage({
           <Badge variant="secondary">{course.code}</Badge>
         </div>
         <p className="text-sm text-muted-foreground">
-          Created {new Date(course.created_at).toLocaleDateString()}
+          Created {formatDate(course.created_at)}
         </p>
       </div>
 

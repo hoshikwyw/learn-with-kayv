@@ -8,6 +8,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { updateProfileAction } from "./actions";
+import { initials } from "@/lib/format";
 
 export function ProfileEditForm({
   initialFullName,
@@ -51,19 +52,14 @@ export function ProfileEditForm({
   }
 
   const displayedAvatar = previewUrl ?? initialAvatarUrl ?? undefined;
-  const initials = (initialFullName || "U")
-    .split(" ")
-    .map((p) => p[0])
-    .slice(0, 2)
-    .join("")
-    .toUpperCase();
+  const fallback = initials(initialFullName, "U");
 
   return (
     <form action={formAction} className="space-y-5">
       <div className="flex items-center gap-4">
         <Avatar className="size-20">
           {displayedAvatar && <AvatarImage src={displayedAvatar} alt={fullName} />}
-          <AvatarFallback className="text-lg">{initials}</AvatarFallback>
+          <AvatarFallback className="text-lg">{fallback}</AvatarFallback>
         </Avatar>
         <div className="space-y-2">
           <Label

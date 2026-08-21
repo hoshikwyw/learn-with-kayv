@@ -32,6 +32,7 @@ import { createClient } from "@/lib/supabase/server";
 import { getCurrentUserAndProfile } from "@/lib/supabase/session";
 import { ROLE_HOME } from "@/types/db";
 import { HERO_DEFAULT, type Hero } from "@/config/site";
+import { formatDate, initials } from "@/lib/format";
 
 // Icons available to the About-items "icon" field. Keep this list in sync
 // with what the admin can pick from (or accept as a string).
@@ -293,11 +294,7 @@ export default async function LandingPage() {
                 )}
                 <CardHeader>
                   <p className="text-xs font-medium text-muted-foreground">
-                    {new Date(n.published_on).toLocaleDateString(undefined, {
-                      year: "numeric",
-                      month: "short",
-                      day: "numeric",
-                    })}
+                    {formatDate(n.published_on)}
                   </p>
                   <CardTitle className="text-base font-semibold leading-snug">
                     {n.title}
@@ -313,15 +310,6 @@ export default async function LandingPage() {
       )}
     </>
   );
-}
-
-function initials(value: string) {
-  return value
-    .split(" ")
-    .map((p) => p[0])
-    .slice(0, 2)
-    .join("")
-    .toUpperCase();
 }
 
 async function fetchByIds<T extends { id: string }>(

@@ -8,6 +8,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { deleteNewsAction, updateNewsAction } from "./actions";
+import { formatDate } from "@/lib/format";
 
 export type NewsItem = {
   id: string;
@@ -145,7 +146,7 @@ export function NewsRow({ item }: { item: NewsItem }) {
         </div>
       </td>
       <td className="p-3 text-sm text-muted-foreground whitespace-nowrap">
-        {new Date(item.published_on).toLocaleDateString()}
+        {formatDate(item.published_on)}
       </td>
       <td className="p-3 font-medium">{item.title}</td>
       <td className="p-3 text-sm text-muted-foreground line-clamp-2">{item.body}</td>

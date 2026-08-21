@@ -14,6 +14,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { assignTeacherAction, unassignTeacherAction } from "./actions";
+import { displayName, initials } from "@/lib/format";
 
 export type AssignedTeacher = {
   teacher_id: string;
@@ -116,12 +117,7 @@ function TeacherRow({
     });
   }
 
-  const initials = (teacher.full_name ?? teacher.email)
-    .split(" ")
-    .map((p) => p[0])
-    .slice(0, 2)
-    .join("")
-    .toUpperCase();
+  const fallback = initials(displayName(teacher));
 
   return (
     <div className="flex items-center gap-3 rounded-lg border bg-card p-3">
@@ -129,7 +125,7 @@ function TeacherRow({
         {teacher.avatar_url && (
           <AvatarImage src={teacher.avatar_url} alt={teacher.email} />
         )}
-        <AvatarFallback>{initials}</AvatarFallback>
+        <AvatarFallback>{fallback}</AvatarFallback>
       </Avatar>
       <div className="flex-1">
         <p className="font-medium leading-tight">

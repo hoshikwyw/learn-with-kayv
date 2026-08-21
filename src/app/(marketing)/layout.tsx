@@ -9,6 +9,7 @@ import {
 import { ThemeToggle } from "@/components/theme/theme-toggle";
 import { Brand } from "@/components/brand/brand";
 import { copyright, siteConfig } from "@/config/site";
+import { displayName, initials } from "@/lib/format";
 import { getCurrentUserAndProfile } from "@/lib/supabase/session";
 import { ROLE_HOME } from "@/types/db";
 
@@ -44,7 +45,7 @@ export default async function MarketingLayout({
                 <span className="hidden text-sm text-muted-foreground sm:inline">
                   Signed in as{" "}
                   <span className="font-medium text-foreground">
-                    {profile.full_name ?? profile.email}
+                    {displayName(profile)}
                   </span>
                 </span>
                 <Button size="sm" render={<Link href={dashboardHref} />}>
@@ -56,12 +57,7 @@ export default async function MarketingLayout({
                     <AvatarImage src={profile.avatar_url} alt={profile.email} />
                   )}
                   <AvatarFallback>
-                    {(profile.full_name ?? profile.email)
-                      .split(" ")
-                      .map((p) => p[0])
-                      .slice(0, 2)
-                      .join("")
-                      .toUpperCase()}
+                    {initials(displayName(profile))}
                   </AvatarFallback>
                 </Avatar>
               </>

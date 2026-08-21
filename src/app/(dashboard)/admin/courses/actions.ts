@@ -2,13 +2,16 @@
 
 import { revalidatePath } from "next/cache";
 import { createClient } from "@/lib/supabase/server";
-
-type State = { error?: string; success?: string } | undefined;
+import { authorize } from "@/lib/auth/guards";
+import type { ActionState } from "@/lib/actions/state";
 
 export async function createCourseAction(
-  _prev: State,
+  _prev: ActionState,
   formData: FormData,
-): Promise<State> {
+): Promise<ActionState> {
+  const auth = await authorize("admin");
+  if (!auth.ok) return { error: auth.error };
+
   const title = String(formData.get("title") ?? "").trim();
   const code = String(formData.get("code") ?? "").trim().toUpperCase();
 

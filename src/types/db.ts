@@ -1,5 +1,8 @@
 export type Role = "admin" | "teacher" | "student";
 
+/** `student_enrollments.status` — see migration 0009. */
+export type EnrollmentStatus = "pending" | "approved" | "declined";
+
 export type Profile = {
   id: string;
   email: string;

@@ -64,6 +64,12 @@ export type SiteConfig = {
   url: string;
   /** First year of operation — rendered as "Est. {founded}" in the hero badge. */
   founded: number;
+  /**
+   * BCP-47 tag used to format every date the app renders. Pinned rather than
+   * left to the runtime, so the server and the browser agree during hydration.
+   * e.g. "en-US" · "en-GB" · "ko-KR" · "my-MM"
+   */
+  locale: string;
   /** Which icon represents the brand. Add your own in `BRAND_ICONS`. */
   icon: BrandIconName;
   /**
@@ -109,6 +115,7 @@ export const siteConfig: SiteConfig = {
   tagline: process.env.NEXT_PUBLIC_SITE_TAGLINE || "A private-school platform.",
   url: process.env.NEXT_PUBLIC_SITE_URL || "http://localhost:3000",
   founded: Number(process.env.NEXT_PUBLIC_SITE_FOUNDED) || 2026,
+  locale: process.env.NEXT_PUBLIC_SITE_LOCALE || "en-GB",
   icon: (process.env.NEXT_PUBLIC_SITE_ICON as BrandIconName) || "GraduationCap",
   theme: (process.env.NEXT_PUBLIC_SITE_THEME as ThemePreset) || "indigo",
 

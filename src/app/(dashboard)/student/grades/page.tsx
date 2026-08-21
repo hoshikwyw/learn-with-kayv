@@ -7,6 +7,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
+import { formatDate } from "@/lib/format";
 
 export const metadata = { title: "My grades" };
 
@@ -62,7 +63,7 @@ export default async function StudentGradesPage() {
                   {g.score}
                 </TableCell>
                 <TableCell className="text-right text-muted-foreground">
-                  {new Date(g.created_at).toLocaleDateString()}
+                  {formatDate(g.created_at)}
                 </TableCell>
               </TableRow>
             ))}

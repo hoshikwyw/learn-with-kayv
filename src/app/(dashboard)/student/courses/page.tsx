@@ -1,39 +1,47 @@
 import { BookOpen } from "lucide-react";
 import { createClient } from "@/lib/supabase/server";
-import { getCurrentUserAndProfile } from "@/lib/supabase/session";
-import { EnrollButton } from "./enroll-button";
+import { requireUser } from "@/lib/auth/guards";
+import { EnrollButton } from "@/components/courses/enroll-button";
+import type { EnrollmentStatus } from "@/types/db";
 
 export const metadata = { title: "Courses" };
 
+type CourseRow = {
+  id: string;
+  code: string;
+  title: string;
+  description: string | null;
+  course_teachers: {
+    role: string;
+    profiles: { full_name: string | null } | null;
+  }[];
+};
+
 export default async function StudentCoursesPage() {
-  const { user } = await getCurrentUserAndProfile();
+  const { user } = await requireUser();
   const supabase = await createClient();
 
   const [{ data: courses }, { data: enrollments }] = await Promise.all([
     supabase
       .from("courses")
       .select("id, code, title, description, course_teachers(role, profiles(full_name))")
-      .order("title"),
+      .order("title")
+      .returns<CourseRow[]>(),
     supabase
       .from("student_enrollments")
       .select("course_id, status")
-      .eq("student_id", user!.id),
+      .eq("student_id", user.id),
   ]);
 
   const enrollmentMap = new Map(
     (enrollments ?? []).map((e) => [
       e.course_id,
-      e.status as "pending" | "approved" | "declined",
+      e.status as EnrollmentStatus,
     ]),
   );
 
   const list = (courses ?? []).map((c) => {
-    const main = (
-      c.course_teachers as unknown as {
-        role: string;
-        profiles: { full_name: string | null } | null;
-      }[]
-    )?.find((t) => t.role === "main");
+    const main = c.course_teachers?.find((t) => t.role === "main");
     return { ...c, teacherName: main?.profiles?.full_name ?? null };
   });
 

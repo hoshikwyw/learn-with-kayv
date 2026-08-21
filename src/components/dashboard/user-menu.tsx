@@ -26,18 +26,14 @@ import {
 } from "@/components/ui/sidebar";
 import type { Profile } from "@/types/db";
 import { signOutAction } from "@/app/(auth)/actions";
+import { displayName, initials } from "@/lib/format";
 
 export function UserMenu({ profile }: { profile: Profile }) {
   const { isMobile } = useSidebar();
   const router = useRouter();
   const [isSigningOut, startSignOut] = useTransition();
 
-  const initials = (profile.full_name ?? profile.email)
-    .split(" ")
-    .map((p) => p[0])
-    .slice(0, 2)
-    .join("")
-    .toUpperCase();
+  const fallback = initials(displayName(profile));
 
   function handleSignOut() {
     const toastId = toast.loading("Signing out...");
@@ -69,11 +65,11 @@ export function UserMenu({ profile }: { profile: Profile }) {
               {profile.avatar_url && (
                 <AvatarImage src={profile.avatar_url} alt={profile.email} />
               )}
-              <AvatarFallback className="rounded-lg">{initials}</AvatarFallback>
+              <AvatarFallback className="rounded-lg">{fallback}</AvatarFallback>
             </Avatar>
             <div className="grid flex-1 text-left text-sm leading-tight">
               <span className="truncate font-medium">
-                {profile.full_name ?? profile.email}
+                {displayName(profile)}
               </span>
               <span className="truncate text-xs text-sidebar-foreground/60">
                 {profile.email}
@@ -91,7 +87,7 @@ export function UserMenu({ profile }: { profile: Profile }) {
               <DropdownMenuLabel className="font-normal">
                 <div className="flex flex-col">
                   <span className="font-medium">
-                    {profile.full_name ?? profile.email}
+                    {displayName(profile)}
                   </span>
                   <span className="text-xs text-muted-foreground">
                     {profile.email}

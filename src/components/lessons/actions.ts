@@ -2,8 +2,8 @@
 
 import { revalidatePath } from "next/cache";
 import { createClient } from "@/lib/supabase/server";
-
-type State = { error?: string; success?: string } | undefined;
+import { authorize, requireStaff } from "@/lib/auth/guards";
+import type { ActionState } from "@/lib/actions/state";
 
 function bump(courseId: string) {
   revalidatePath(`/admin/courses/${courseId}`);
@@ -12,9 +12,12 @@ function bump(courseId: string) {
 }
 
 export async function createLessonAction(
-  _prev: State,
+  _prev: ActionState,
   formData: FormData,
-): Promise<State> {
+): Promise<ActionState> {
+  const auth = await authorize("admin", "teacher");
+  if (!auth.ok) return { error: auth.error };
+
   const courseId = String(formData.get("course_id") ?? "");
   const title = String(formData.get("title") ?? "").trim();
   const body = String(formData.get("body") ?? "").trim();
@@ -56,9 +59,12 @@ export async function createLessonAction(
 }
 
 export async function updateLessonAction(
-  _prev: State,
+  _prev: ActionState,
   formData: FormData,
-): Promise<State> {
+): Promise<ActionState> {
+  const auth = await authorize("admin", "teacher");
+  if (!auth.ok) return { error: auth.error };
+
   const id = String(formData.get("id") ?? "");
   const courseId = String(formData.get("course_id") ?? "");
   const title = String(formData.get("title") ?? "").trim();
@@ -80,6 +86,8 @@ export async function updateLessonAction(
 }
 
 export async function deleteLessonAction(formData: FormData) {
+  await requireStaff();
+
   const id = String(formData.get("id") ?? "");
   const courseId = String(formData.get("course_id") ?? "");
   if (!id) return;
@@ -89,6 +97,8 @@ export async function deleteLessonAction(formData: FormData) {
 }
 
 export async function moveLessonAction(formData: FormData) {
+  await requireStaff();
+
   const id = String(formData.get("id") ?? "");
   const courseId = String(formData.get("course_id") ?? "");
   const direction = String(formData.get("direction") ?? "");
