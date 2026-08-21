@@ -19,6 +19,7 @@ import {
   EnrolledStudents,
   type EnrolledStudent,
 } from "@/components/dashboard/enrolled-students";
+import { PageHeader } from "@/components/layout/page-header";
 
 type Course = {
   id: string;
@@ -89,17 +90,12 @@ export default async function TeacherCourseDetailPage({
         </Button>
       </div>
 
-      <div className="space-y-2">
-        <div className="flex flex-wrap items-center gap-3">
-          <h2 className="text-2xl font-semibold tracking-tight">
-            {course.title}
-          </h2>
-          <Badge variant="secondary">{course.code}</Badge>
-          <Badge variant={assignment.role === "main" ? "default" : "secondary"}>
-            {assignment.role}
-          </Badge>
-        </div>
-      </div>
+      <PageHeader title={course.title}>
+        <Badge variant="secondary">{course.code}</Badge>
+        <Badge variant={assignment.role === "main" ? "default" : "secondary"}>
+          {assignment.role}
+        </Badge>
+      </PageHeader>
 
       <div className="grid gap-6 lg:grid-cols-2">
         {course.image_url ? (

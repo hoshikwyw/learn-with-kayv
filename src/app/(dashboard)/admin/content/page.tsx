@@ -5,6 +5,7 @@ import type { AboutItem } from "./about-tab";
 import type { NewsItem } from "./news-tab";
 import type { Course } from "./courses-tab";
 import type { FeaturedTeacher, AvailableTeacher } from "./teachers-tab";
+import { PageHeader } from "@/components/layout/page-header";
 
 export const metadata = { title: "Marketing content" };
 
@@ -67,14 +68,10 @@ export default async function AdminContentPage() {
 
   return (
     <>
-      <div>
-        <h2 className="text-2xl font-semibold tracking-tight">
-          Marketing content
-        </h2>
-        <p className="mt-1 text-sm text-muted-foreground">
-          Manage what shows on the public landing page.
-        </p>
-      </div>
+      <PageHeader
+        title="Marketing content"
+        description="Manage what shows on the public landing page."
+      />
 
       <ContentTabs
         hero={hero}

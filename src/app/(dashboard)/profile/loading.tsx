@@ -1,34 +1,21 @@
 import { Skeleton } from "@/components/ui/skeleton";
+import { FormSkeleton, PageHeaderSkeleton } from "@/components/ui/skeletons";
 
-// Profile page — avatar + form fields
 export default function ProfileLoading() {
   return (
-    <>
-      <div className="space-y-1">
-        <Skeleton className="h-8 w-24" />
-        <Skeleton className="h-4 w-56" />
-      </div>
+    <div className="max-w-2xl space-y-6">
+      <PageHeaderSkeleton />
 
-      <div className="rounded-xl border bg-card p-6 max-w-lg space-y-6">
-        {/* Avatar */}
-        <div className="flex items-center gap-5">
-          <Skeleton className="size-20 rounded-full shrink-0" />
-          <div className="space-y-2">
-            <Skeleton className="h-9 w-32" />
-            <Skeleton className="h-4 w-48" />
-          </div>
+      {/* Avatar row */}
+      <div className="flex items-center gap-5 rounded-xl border bg-card p-6">
+        <Skeleton className="size-20 shrink-0 rounded-full" />
+        <div className="space-y-2">
+          <Skeleton className="h-9 w-32" />
+          <Skeleton className="h-4 w-48" />
         </div>
-
-        {/* Form fields */}
-        {Array.from({ length: 2 }).map((_, i) => (
-          <div key={i} className="space-y-2">
-            <Skeleton className="h-4 w-24" />
-            <Skeleton className="h-10 w-full" />
-          </div>
-        ))}
-
-        <Skeleton className="h-10 w-28" />
       </div>
-    </>
+
+      <FormSkeleton fields={2} />
+    </div>
   );
 }

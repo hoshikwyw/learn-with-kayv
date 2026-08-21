@@ -16,6 +16,7 @@ import {
 import { createClient } from "@/lib/supabase/server";
 import { approveEnrollmentAction, declineEnrollmentAction } from "./actions";
 import { displayName, formatDate, initials } from "@/lib/format";
+import { PageHeader } from "@/components/layout/page-header";
 
 export const metadata = { title: "Enrollments" };
 
@@ -71,18 +72,16 @@ export default async function AdminEnrollmentsPage() {
 
   return (
     <>
-      <div className="flex items-start justify-between gap-4">
-        <div>
-          <h2 className="text-2xl font-semibold tracking-tight">Enrollments</h2>
-          <p className="mt-1 text-sm text-muted-foreground">
-            Review student enrollment requests and approve or decline them.
-          </p>
-        </div>
-        <div className="flex items-center gap-2 text-sm text-muted-foreground">
-          <Clock className="size-4" />
-          {pending.length} pending
-        </div>
-      </div>
+      <PageHeader
+        title="Enrollments"
+        description="Review student enrollment requests and approve or decline them."
+        action={
+          <div className="flex items-center gap-2 text-sm text-muted-foreground">
+            <Clock className="size-4" />
+            {pending.length} pending
+          </div>
+        }
+      />
 
       {/* Pending */}
       <Card>

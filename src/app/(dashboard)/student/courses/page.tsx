@@ -3,6 +3,9 @@ import { createClient } from "@/lib/supabase/server";
 import { requireUser } from "@/lib/auth/guards";
 import { EnrollButton } from "@/components/courses/enroll-button";
 import type { EnrollmentStatus } from "@/types/db";
+import { PageHeader } from "@/components/layout/page-header";
+import { siteConfig } from "@/config/site";
+import { EmptyState } from "@/components/ui/empty-state";
 
 export const metadata = { title: "Courses" };
 
@@ -47,18 +50,14 @@ export default async function StudentCoursesPage() {
 
   return (
     <>
-      <div>
-        <h2 className="text-2xl font-semibold tracking-tight">Courses</h2>
-        <p className="mt-1 text-sm text-muted-foreground">
-          Browse all available courses and enroll in the ones you want to take.
-        </p>
-      </div>
+      <PageHeader
+        title={siteConfig.terminology.courses}
+        description="Browse all available courses and enroll in the ones you want to take."
+      />
 
       <div className="rounded-lg border bg-card">
         {list.length === 0 ? (
-          <div className="py-16 text-center text-sm text-muted-foreground">
-            No courses available yet.
-          </div>
+          <EmptyState icon={BookOpen} title="No courses available yet." />
         ) : (
           <ul className="divide-y divide-border">
             {list.map((c) => (

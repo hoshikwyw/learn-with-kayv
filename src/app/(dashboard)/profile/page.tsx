@@ -10,6 +10,7 @@ import { Label } from "@/components/ui/label";
 import { ROLE_LABEL } from "@/config/site";
 import { getCurrentUserAndProfile } from "@/lib/supabase/session";
 import { ProfileEditForm } from "./profile-edit-form";
+import { PageHeader } from "@/components/layout/page-header";
 
 export default async function ProfilePage() {
   const { user, profile } = await getCurrentUserAndProfile();
@@ -18,13 +19,11 @@ export default async function ProfilePage() {
 
   return (
     <div className="max-w-2xl space-y-6">
-      <div className="space-y-1">
-        <h1 className="text-2xl font-semibold tracking-tight">Profile</h1>
-        <p className="text-sm text-muted-foreground">
-          Update your name. Email and role come from your account and can&apos;t
-          be changed here.
-        </p>
-      </div>
+      <PageHeader
+        as="h1"
+        title="Profile"
+        description="Update your name. Email and role come from your account and can't be changed here."
+      />
 
       <Card>
         <CardHeader>

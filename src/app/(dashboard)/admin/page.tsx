@@ -1,6 +1,7 @@
 import { Users, BookOpen, GraduationCap } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { createClient } from "@/lib/supabase/server";
+import { PageHeader } from "@/components/layout/page-header";
 
 export const metadata = { title: "Admin dashboard" };
 
@@ -29,12 +30,10 @@ export default async function AdminOverviewPage() {
 
   return (
     <>
-      <div>
-        <h2 className="text-2xl font-semibold tracking-tight">Admin dashboard</h2>
-        <p className="mt-1 text-sm text-muted-foreground">
-          A snapshot of the school.
-        </p>
-      </div>
+      <PageHeader
+        title="Admin dashboard"
+        description="A snapshot of the school."
+      />
 
       <div className="grid gap-4 md:grid-cols-3">
         {stats.map((s) => {

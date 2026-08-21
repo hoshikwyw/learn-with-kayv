@@ -4,6 +4,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { createClient } from "@/lib/supabase/server";
+import { PageHeader } from "@/components/layout/page-header";
 
 export const metadata = { title: "Add grade" };
 
@@ -36,12 +37,10 @@ async function addGrade(formData: FormData) {
 export default function TeacherGradesPage() {
   return (
     <>
-      <div>
-        <h2 className="text-2xl font-semibold tracking-tight">Add a grade</h2>
-        <p className="mt-1 text-sm text-muted-foreground">
-          Record a score for a student in one of your courses.
-        </p>
-      </div>
+      <PageHeader
+        title="Add a grade"
+        description="Record a score for a student in one of your courses."
+      />
 
       <Card className="max-w-lg">
         <CardHeader>

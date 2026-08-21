@@ -25,6 +25,7 @@ import {
   type EnrolledStudent,
 } from "@/components/dashboard/enrolled-students";
 import { formatDate } from "@/lib/format";
+import { PageHeader } from "@/components/layout/page-header";
 
 type Course = {
   id: string;
@@ -119,17 +120,12 @@ export default async function CourseDetailPage({
         </Button>
       </div>
 
-      <div className="space-y-2">
-        <div className="flex flex-wrap items-center gap-3">
-          <h2 className="text-2xl font-semibold tracking-tight">
-            {course.title}
-          </h2>
-          <Badge variant="secondary">{course.code}</Badge>
-        </div>
-        <p className="text-sm text-muted-foreground">
-          Created {formatDate(course.created_at)}
-        </p>
-      </div>
+      <PageHeader
+        title={course.title}
+        description={`Created ${formatDate(course.created_at)}`}
+      >
+        <Badge variant="secondary">{course.code}</Badge>
+      </PageHeader>
 
       <div className="grid gap-6 lg:grid-cols-2">
         <Card>

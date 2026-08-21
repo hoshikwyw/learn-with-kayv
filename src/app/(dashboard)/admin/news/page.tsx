@@ -1,13 +1,17 @@
 import { createClient } from "@/lib/supabase/server";
+import { Newspaper } from "lucide-react";
 import {
   Table,
   TableBody,
+  TableCell,
   TableHead,
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
 import { CreateNewsDialog } from "./create-news-dialog";
 import { NewsRow, type NewsItem } from "./news-row";
+import { PageHeader } from "@/components/layout/page-header";
+import { EmptyState } from "@/components/ui/empty-state";
 
 export const metadata = { title: "News" };
 
@@ -23,19 +27,19 @@ export default async function AdminNewsPage() {
 
   return (
     <>
-      <div className="flex items-start justify-between gap-4">
-        <div>
-          <h2 className="text-2xl font-semibold tracking-tight">News</h2>
-          <p className="mt-1 text-sm text-muted-foreground">
+      <PageHeader
+        title="News"
+        description={
+          <>
             Manage news items. Pick which appear on the landing page from{" "}
             <a className="underline hover:text-foreground" href="/admin/content">
               Site content
             </a>
             .
-          </p>
-        </div>
-        <CreateNewsDialog />
-      </div>
+          </>
+        }
+        action={<CreateNewsDialog />}
+      />
 
       <div className="rounded-lg border bg-card">
         <Table>
@@ -54,12 +58,9 @@ export default async function AdminNewsPage() {
             ))}
             {list.length === 0 && (
               <TableRow>
-                <td
-                  colSpan={5}
-                  className="py-16 text-center text-sm text-muted-foreground"
-                >
-                  No news yet. Add the first item.
-                </td>
+                <TableCell colSpan={5} className="p-0">
+                  <EmptyState icon={Newspaper} title="No news yet. Add the first item." />
+                </TableCell>
               </TableRow>
             )}
           </TableBody>

@@ -1,4 +1,3 @@
-import Image from "next/image";
 import Link from "next/link";
 import { redirect } from "next/navigation";
 import { BookOpen } from "lucide-react";
@@ -11,6 +10,9 @@ import {
 } from "@/components/ui/card";
 import { createClient } from "@/lib/supabase/server";
 import { getCurrentUserAndProfile } from "@/lib/supabase/session";
+import { PageHeader } from "@/components/layout/page-header";
+import { siteConfig } from "@/config/site";
+import { CourseCover } from "@/components/courses/course-cover";
 
 export const metadata = { title: "Teacher dashboard" };
 
@@ -43,12 +45,10 @@ export default async function TeacherOverviewPage() {
 
   return (
     <>
-      <div>
-        <h2 className="text-2xl font-semibold tracking-tight">My Courses</h2>
-        <p className="mt-1 text-sm text-muted-foreground">
-          Courses you are assigned to teach.
-        </p>
-      </div>
+      <PageHeader
+        title={`My ${siteConfig.terminology.courses}`}
+        description="Courses you are assigned to teach."
+      />
 
       {items.length === 0 ? (
         <Card>
@@ -70,21 +70,7 @@ export default async function TeacherOverviewPage() {
               className="group block focus-visible:outline-none"
             >
               <Card className="h-full overflow-hidden pt-0 transition group-hover:border-foreground/30 group-hover:shadow-md">
-                {c.image_url ? (
-                  <div className="relative aspect-[16/9] w-full overflow-hidden bg-muted">
-                    <Image
-                      src={c.image_url}
-                      alt={c.title}
-                      fill
-                      sizes="(max-width: 768px) 100vw, 33vw"
-                      className="object-cover"
-                    />
-                  </div>
-                ) : (
-                  <div className="flex aspect-[16/9] w-full items-center justify-center bg-muted text-muted-foreground">
-                    <BookOpen className="size-10" />
-                  </div>
-                )}
+                <CourseCover src={c.image_url} alt={c.title} />
                 <CardHeader>
                   <div className="flex items-center justify-between gap-2">
                     <Badge variant="secondary">{c.code}</Badge>

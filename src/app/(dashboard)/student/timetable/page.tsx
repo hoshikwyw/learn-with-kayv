@@ -1,4 +1,5 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { PageHeader } from "@/components/layout/page-header";
 
 export const metadata = { title: "Timetable" };
 
@@ -33,12 +34,10 @@ const SAMPLE: Record<(typeof DAYS)[number], { time: string; subject: string }[]>
 export default function StudentTimetablePage() {
   return (
     <>
-      <div>
-        <h2 className="text-2xl font-semibold tracking-tight">Timetable</h2>
-        <p className="mt-1 text-sm text-muted-foreground">
-          Your weekly class schedule. (Static sample — wire up in v2.)
-        </p>
-      </div>
+      <PageHeader
+        title="Timetable"
+        description="Your weekly class schedule. (Static sample — wire up in v2.)"
+      />
 
       <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-5">
         {DAYS.map((day) => (

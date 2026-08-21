@@ -8,6 +8,8 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { formatDate } from "@/lib/format";
+import { PageHeader } from "@/components/layout/page-header";
+import { requireUser } from "@/lib/auth/guards";
 
 export const metadata = { title: "My grades" };
 
@@ -19,26 +21,24 @@ type GradeRow = {
 };
 
 export default async function StudentGradesPage() {
-  const supabase = await createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
+  const [supabase, { user }] = await Promise.all([
+    createClient(),
+    requireUser(),
+  ]);
 
   const { data: grades } = await supabase
     .from("grades")
     .select("id, score, created_at, courses(title, code)")
-    .eq("student_id", user!.id)
+    .eq("student_id", user.id)
     .order("created_at", { ascending: false })
     .returns<GradeRow[]>();
 
   return (
     <>
-      <div>
-        <h2 className="text-2xl font-semibold tracking-tight">My grades</h2>
-        <p className="mt-1 text-sm text-muted-foreground">
-          Every score your teachers have recorded for you.
-        </p>
-      </div>
+      <PageHeader
+        title="My grades"
+        description="Every score your teachers have recorded for you."
+      />
 
       <div className="rounded-lg border bg-card">
         <Table>

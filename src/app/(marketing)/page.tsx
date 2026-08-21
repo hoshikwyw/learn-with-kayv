@@ -33,6 +33,7 @@ import { getCurrentUserAndProfile } from "@/lib/supabase/session";
 import { ROLE_HOME } from "@/types/db";
 import { HERO_DEFAULT, type Hero } from "@/config/site";
 import { formatDate, initials } from "@/lib/format";
+import { CourseCover } from "@/components/courses/course-cover";
 
 // Icons available to the About-items "icon" field. Keep this list in sync
 // with what the admin can pick from (or accept as a string).
@@ -189,21 +190,7 @@ export default async function LandingPage() {
             {featuredCourses.map((c) => (
               <Link key={c.id} href={`/courses/${c.id}`} className="group">
                 <Card className="overflow-hidden border-border/60 pt-0 transition-shadow group-hover:shadow-md">
-                  {c.image_url ? (
-                    <div className="relative aspect-[16/9] w-full overflow-hidden bg-muted">
-                      <Image
-                        src={c.image_url}
-                        alt={c.title}
-                        fill
-                        sizes="(max-width: 768px) 100vw, 33vw"
-                        className="object-cover transition-transform duration-300 group-hover:scale-[1.02]"
-                      />
-                    </div>
-                  ) : (
-                    <div className="flex aspect-[16/9] w-full items-center justify-center bg-muted">
-                      <BookOpen className="size-10 text-muted-foreground/30" />
-                    </div>
-                  )}
+                  <CourseCover src={c.image_url} alt={c.title} zoomOnHover />
                   <CardHeader>
                     <Badge variant="secondary" className="w-fit">
                       {c.code}

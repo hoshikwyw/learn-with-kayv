@@ -1,18 +1,14 @@
 import { GraduationCap, Calendar, BookOpen } from "lucide-react";
 import Link from "next/link";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { PageHeader } from "@/components/layout/page-header";
 
 export const metadata = { title: "Student dashboard" };
 
 export default function StudentOverviewPage() {
   return (
     <>
-      <div>
-        <h2 className="text-2xl font-semibold tracking-tight">Welcome back</h2>
-        <p className="mt-1 text-sm text-muted-foreground">
-          Your school, at a glance.
-        </p>
-      </div>
+      <PageHeader title="Welcome back" description="Your school, at a glance." />
 
       <div className="grid gap-4 md:grid-cols-2">
         <Link href="/student/courses" className="group">

@@ -1,7 +1,10 @@
 import Link from "next/link";
-import { ChevronRight } from "lucide-react";
+import { BookOpen, ChevronRight } from "lucide-react";
 import { createClient } from "@/lib/supabase/server";
 import { CreateCourseDialog } from "./create-course-dialog";
+import { PageHeader } from "@/components/layout/page-header";
+import { siteConfig } from "@/config/site";
+import { EmptyState } from "@/components/ui/empty-state";
 
 export const metadata = { title: "Courses" };
 
@@ -20,21 +23,15 @@ export default async function AdminCoursesPage() {
 
   return (
     <>
-      <div className="flex items-start justify-between gap-4">
-        <div>
-          <h2 className="text-2xl font-semibold tracking-tight">Courses</h2>
-          <p className="mt-1 text-sm text-muted-foreground">
-            Create and manage courses offered by the school.
-          </p>
-        </div>
-        <CreateCourseDialog />
-      </div>
+      <PageHeader
+        title={siteConfig.terminology.courses}
+        description="Create and manage courses offered by the school."
+        action={<CreateCourseDialog />}
+      />
 
       <div className="rounded-lg border bg-card">
         {list.length === 0 ? (
-          <div className="py-16 text-center text-sm text-muted-foreground">
-            No courses yet. Create the first one.
-          </div>
+          <EmptyState icon={BookOpen} title="No courses yet. Create the first one." />
         ) : (
           <ul className="divide-y divide-border">
             {list.map((c) => (

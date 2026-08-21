@@ -1,4 +1,3 @@
-import Image from "next/image";
 import Link from "next/link";
 import { BookOpen, ChevronRight } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
@@ -7,6 +6,8 @@ import { createClient } from "@/lib/supabase/server";
 import { getCurrentUserAndProfile } from "@/lib/supabase/session";
 import { EnrollButton } from "@/components/courses/enroll-button";
 import type { EnrollmentStatus } from "@/types/db";
+import { EmptyState } from "@/components/ui/empty-state";
+import { CourseCover } from "@/components/courses/course-cover";
 
 export const metadata = { title: "Courses" };
 
@@ -69,10 +70,11 @@ export default async function PublicCoursesPage() {
       </div>
 
       {list.length === 0 ? (
-        <div className="flex flex-col items-center gap-4 py-24 text-center text-muted-foreground">
-          <BookOpen className="size-10 opacity-30" />
-          <p>No courses have been published yet. Check back soon.</p>
-        </div>
+        <EmptyState
+          size="lg"
+          icon={BookOpen}
+          title="No courses have been published yet. Check back soon."
+        />
       ) : (
         <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
           {list.map((c) => (
@@ -82,21 +84,12 @@ export default async function PublicCoursesPage() {
             >
               {/* Image */}
               <Link href={`/courses/${c.id}`} className="block shrink-0">
-                {c.image_url ? (
-                  <div className="relative aspect-[16/9] w-full overflow-hidden bg-muted">
-                    <Image
-                      src={c.image_url}
-                      alt={c.title}
-                      fill
-                      sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
-                      className="object-cover transition-transform duration-300 group-hover:scale-[1.02]"
-                    />
-                  </div>
-                ) : (
-                  <div className="flex aspect-[16/9] w-full items-center justify-center bg-muted">
-                    <BookOpen className="size-10 text-muted-foreground/40" />
-                  </div>
-                )}
+                <CourseCover
+                  src={c.image_url}
+                  alt={c.title}
+                  sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
+                  zoomOnHover
+                />
               </Link>
 
               <CardHeader className="pb-2">

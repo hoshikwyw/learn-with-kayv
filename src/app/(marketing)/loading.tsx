@@ -1,4 +1,5 @@
 import { Skeleton } from "@/components/ui/skeleton";
+import { CardGridSkeleton } from "@/components/ui/skeletons";
 
 // Marketing landing page loading skeleton
 export default function MarketingLoading() {
@@ -36,18 +37,7 @@ export default function MarketingLoading() {
           </div>
           <Skeleton className="h-5 w-20" />
         </div>
-        <div className="grid gap-4 md:grid-cols-3">
-          {Array.from({ length: 3 }).map((_, i) => (
-            <div key={i} className="rounded-xl border bg-card overflow-hidden">
-              <Skeleton className="aspect-[16/9] w-full rounded-none" />
-              <div className="p-5 space-y-3">
-                <Skeleton className="h-5 w-16 rounded-full" />
-                <Skeleton className="h-5 w-3/4" />
-                <Skeleton className="h-4 w-full" />
-              </div>
-            </div>
-          ))}
-        </div>
+        <CardGridSkeleton count={3} cover lines={1} />
       </section>
     </>
   );
