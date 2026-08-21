@@ -198,7 +198,7 @@ export default async function PublicCourseDetailPage({
                   </p>
                 )}
                 {enrollmentStatus === "pending" && (
-                  <p className="text-center text-xs text-amber-600 dark:text-amber-400">
+                  <p className="text-center text-xs text-warning">
                     Your request is awaiting admin approval.
                   </p>
                 )}

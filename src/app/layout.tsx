@@ -1,25 +1,13 @@
 import { Suspense } from "react";
 import type { Metadata } from "next";
-import { Plus_Jakarta_Sans, JetBrains_Mono } from "next/font/google";
 import { Toaster } from "react-hot-toast";
 import "./globals.css";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { ThemeProvider } from "@/components/theme/theme-provider";
 import { ToastFromSearchParams } from "@/components/toast/toast-from-search-params";
 import { siteConfig } from "@/config/site";
+import { fontVariables } from "@/config/fonts";
 import NextTopLoader from "nextjs-toploader";
-const sans = Plus_Jakarta_Sans({
-  variable: "--font-sans",
-  subsets: ["latin"],
-  display: "swap",
-  weight: ["300", "400", "500", "600", "700", "800"],
-});
-
-const mono = JetBrains_Mono({
-  variable: "--font-mono",
-  subsets: ["latin"],
-  display: "swap",
-});
 
 export const metadata: Metadata = {
   metadataBase: new URL(siteConfig.url),
@@ -36,9 +24,11 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" suppressHydrationWarning>
+    // `data-theme` picks the colour preset; next-themes owns the `class`
+    // attribute for light/dark, so the two never collide.
+    <html lang="en" data-theme={siteConfig.theme} suppressHydrationWarning>
       <body
-        className={`${sans.variable} ${mono.variable} min-h-screen bg-background font-sans antialiased`}
+        className={`${fontVariables} min-h-screen bg-background font-sans antialiased`}
         suppressHydrationWarning
       >
         <ThemeProvider
@@ -48,7 +38,7 @@ export default function RootLayout({
           disableTransitionOnChange
         >
           <NextTopLoader
-            color="hsl(var(--primary))"
+            color="var(--primary)"
             showSpinner={false}
             height={3}
           />

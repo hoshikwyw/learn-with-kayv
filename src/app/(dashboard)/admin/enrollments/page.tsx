@@ -97,7 +97,7 @@ export default async function AdminEnrollmentsPage() {
       <Card>
         <CardHeader>
           <CardTitle className="flex items-center gap-2 text-base">
-            <Clock className="size-4 text-amber-500" />
+            <Clock className="size-4 text-warning" />
             Pending requests
           </CardTitle>
           <CardDescription>
@@ -127,7 +127,7 @@ export default async function AdminEnrollmentsPage() {
         <Card>
           <CardHeader>
             <CardTitle className="flex items-center gap-2 text-base">
-              <CheckCircle className="size-4 text-green-500" />
+              <CheckCircle className="size-4 text-success" />
               Approved
             </CardTitle>
           </CardHeader>

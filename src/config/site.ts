@@ -31,6 +31,21 @@ export type BrandIconName =
   | "Library"
   | "Lightbulb";
 
+/**
+ * Colour presets defined in `src/app/globals.css`. The chosen name is written
+ * to `<html data-theme="...">`, which re-points the brand hue/chroma knobs the
+ * whole palette derives from. Add a preset there, then add its name here.
+ */
+export type ThemePreset =
+  | "indigo"
+  | "blue"
+  | "teal"
+  | "emerald"
+  | "violet"
+  | "rose"
+  | "amber"
+  | "neutral";
+
 export type NavLink = {
   label: string;
   href: string;
@@ -51,6 +66,11 @@ export type SiteConfig = {
   founded: number;
   /** Which icon represents the brand. Add your own in `BRAND_ICONS`. */
   icon: BrandIconName;
+  /**
+   * Colour preset. For a hue that no preset matches, leave this alone and
+   * edit the `--brand-*` knobs at the top of `src/app/globals.css` instead.
+   */
+  theme: ThemePreset;
   contact: {
     email: string;
     phone: string;
@@ -90,6 +110,7 @@ export const siteConfig: SiteConfig = {
   url: process.env.NEXT_PUBLIC_SITE_URL || "http://localhost:3000",
   founded: Number(process.env.NEXT_PUBLIC_SITE_FOUNDED) || 2026,
   icon: (process.env.NEXT_PUBLIC_SITE_ICON as BrandIconName) || "GraduationCap",
+  theme: (process.env.NEXT_PUBLIC_SITE_THEME as ThemePreset) || "indigo",
 
   contact: {
     email: process.env.NEXT_PUBLIC_SITE_EMAIL || "hello@example.com",

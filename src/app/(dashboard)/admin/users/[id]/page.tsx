@@ -123,7 +123,7 @@ export default async function UserDetailPage({
             <Row
               label="Status"
               value={profile.blocked ? "Blocked" : "Active"}
-              valueClassName={profile.blocked ? "text-destructive" : "text-green-600 dark:text-green-400"}
+              valueClassName={profile.blocked ? "text-destructive" : "text-success"}
             />
             <Row
               label="Joined"
