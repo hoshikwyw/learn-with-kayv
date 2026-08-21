@@ -6,8 +6,11 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { updateHeroAction } from "./actions";
+import type { Hero } from "@/config/site";
 
-export type Hero = { badge: string; title: string; subtitle: string };
+// Re-exported so the content tabs keep importing their prop types from the
+// tab that owns them.
+export type { Hero };
 
 export function HeroTab({ initial }: { initial: Hero }) {
   const [state, formAction, pending] = useActionState(updateHeroAction, undefined);

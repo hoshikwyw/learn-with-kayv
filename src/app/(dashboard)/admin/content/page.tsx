@@ -1,19 +1,12 @@
 import { createClient } from "@/lib/supabase/server";
 import { ContentTabs } from "./content-tabs";
-import type { Hero } from "./hero-tab";
+import { HERO_DEFAULT, type Hero } from "@/config/site";
 import type { AboutItem } from "./about-tab";
 import type { NewsItem } from "./news-tab";
 import type { Course } from "./courses-tab";
 import type { FeaturedTeacher, AvailableTeacher } from "./teachers-tab";
 
 export const metadata = { title: "Marketing content" };
-
-const HERO_DEFAULT: Hero = {
-  badge: "Private school · Est. 2026",
-  title: "A calm, modern home for learning at Learn-with-kayv.",
-  subtitle:
-    "One place for students to track grades and timetables, teachers to manage their classes, and admins to run the school.",
-};
 
 export default async function AdminContentPage() {
   const supabase = await createClient();

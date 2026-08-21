@@ -11,6 +11,9 @@ import {
   type LucideIcon,
 } from "lucide-react";
 import type { Role } from "@/types/db";
+import { siteConfig } from "@/config/site";
+
+const { courses: COURSES } = siteConfig.terminology;
 
 export type NavItem = {
   title: string;
@@ -35,7 +38,7 @@ export const NAV_BY_ROLE: Record<Role, NavGroup[]> = {
       label: "Manage",
       items: [
         { title: "Users", href: "/admin/users", icon: Users },
-        { title: "Courses", href: "/admin/courses", icon: BookOpen },
+        { title: COURSES, href: "/admin/courses", icon: BookOpen },
         { title: "Enrollments", href: "/admin/enrollments", icon: ClipboardCheck },
         { title: "News", href: "/admin/news", icon: Newspaper },
       ],
@@ -57,7 +60,7 @@ export const NAV_BY_ROLE: Record<Role, NavGroup[]> = {
     {
       label: "Teaching",
       items: [
-        { title: "My Courses", href: "/teacher", icon: BookOpen },
+        { title: `My ${COURSES}`, href: "/teacher", icon: BookOpen },
         { title: "Grades", href: "/teacher/grades", icon: ClipboardList },
       ],
     },
@@ -72,7 +75,7 @@ export const NAV_BY_ROLE: Record<Role, NavGroup[]> = {
     {
       label: "Learning",
       items: [
-        { title: "Courses", href: "/student/courses", icon: BookOpen },
+        { title: COURSES, href: "/student/courses", icon: BookOpen },
         { title: "My Grades", href: "/student/grades", icon: GraduationCap },
         { title: "Timetable", href: "/student/timetable", icon: Calendar },
       ],
@@ -80,8 +83,3 @@ export const NAV_BY_ROLE: Record<Role, NavGroup[]> = {
   ],
 };
 
-export const ROLE_LABEL: Record<Role, string> = {
-  admin: "Administrator",
-  teacher: "Teacher",
-  student: "Student",
-};

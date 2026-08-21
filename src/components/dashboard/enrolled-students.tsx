@@ -1,4 +1,3 @@
-import { Users } from "lucide-react";
 import {
   Avatar,
   AvatarFallback,

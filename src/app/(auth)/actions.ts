@@ -3,10 +3,11 @@
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
+import { siteConfig } from "@/config/site";
 
 export async function signInWithGoogleAction() {
   const supabase = await createClient();
-  const origin = process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:3000";
+  const origin = siteConfig.url;
 
   const { data, error } = await supabase.auth.signInWithOAuth({
     provider: "google",

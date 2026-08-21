@@ -106,8 +106,8 @@ create policy "courses public read"
 -- ─────────────────────────────────────────────────────────────────────────────
 insert into public.site_settings (key, value) values
   ('hero', jsonb_build_object(
-    'badge',    'Private school · Est. 2026',
-    'title',    'A calm, modern home for learning at Learn-with-kayv.',
+    'badge',    'Private school',
+    'title',    'A calm, modern home for learning.',
     'subtitle', 'One place for students to track grades and timetables, teachers to manage their classes, and admins to run the school.'
   )),
   ('featured_news_ids',   '[]'::jsonb),

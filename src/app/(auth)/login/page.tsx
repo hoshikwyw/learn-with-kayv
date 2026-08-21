@@ -1,11 +1,12 @@
 import { GoogleSignIn } from "@/components/auth/google-sign-in";
+import { siteConfig } from "@/config/site";
 
 export default function LoginPage() {
   return (
     <div className="space-y-6">
       <div className="space-y-1.5 text-center">
         <h1 className="text-2xl font-semibold tracking-tight">
-          Welcome to Learn-with-kayv
+          Welcome to {siteConfig.name}
         </h1>
         <p className="text-sm text-muted-foreground">
           Sign in with your Google account to continue.

@@ -10,7 +10,7 @@ import {
   AvatarFallback,
   AvatarImage,
 } from "@/components/ui/avatar";
-import { ROLE_LABEL } from "@/components/dashboard/nav-config";
+import { ROLE_LABEL } from "@/config/site";
 import type { Profile } from "@/types/db";
 
 export const metadata = { title: "User details" };

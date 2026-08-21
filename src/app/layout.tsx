@@ -6,6 +6,7 @@ import "./globals.css";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { ThemeProvider } from "@/components/theme/theme-provider";
 import { ToastFromSearchParams } from "@/components/toast/toast-from-search-params";
+import { siteConfig } from "@/config/site";
 import NextTopLoader from "nextjs-toploader";
 const sans = Plus_Jakarta_Sans({
   variable: "--font-sans",
@@ -21,12 +22,12 @@ const mono = JetBrains_Mono({
 });
 
 export const metadata: Metadata = {
+  metadataBase: new URL(siteConfig.url),
   title: {
-    default: "Learn-with-kayv",
-    template: "%s | Learn-with-kayv",
+    default: siteConfig.name,
+    template: `%s | ${siteConfig.name}`,
   },
-  description:
-    "A private school management platform — courses, grades, and timetables for students, teachers, and admins.",
+  description: siteConfig.description,
 };
 
 export default function RootLayout({

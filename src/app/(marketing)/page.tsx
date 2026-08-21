@@ -31,6 +31,7 @@ import { Badge } from "@/components/ui/badge";
 import { createClient } from "@/lib/supabase/server";
 import { getCurrentUserAndProfile } from "@/lib/supabase/session";
 import { ROLE_HOME } from "@/types/db";
+import { HERO_DEFAULT, type Hero } from "@/config/site";
 
 // Icons available to the About-items "icon" field. Keep this list in sync
 // with what the admin can pick from (or accept as a string).
@@ -47,7 +48,6 @@ const ICON_MAP: Record<string, LucideIcon> = {
   Clock,
 };
 
-type Hero = { badge: string; title: string; subtitle: string };
 type AboutItem = { id: string; icon: string; title: string; body: string };
 type NewsItem = {
   id: string;
@@ -68,13 +68,6 @@ type FeaturedTeacher = {
   full_name: string;
   avatar_url: string | null;
   bio: string;
-};
-
-const HERO_DEFAULT: Hero = {
-  badge: "Private school · Est. 2026",
-  title: "A calm, modern home for learning at Learn-with-kayv.",
-  subtitle:
-    "One place for students to track grades and timetables, teachers to manage their classes, and admins to run the school.",
 };
 
 export default async function LandingPage() {

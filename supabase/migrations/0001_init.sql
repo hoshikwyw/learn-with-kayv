@@ -1,4 +1,4 @@
--- Learn-with-kayv — initial schema (V1 lean)
+-- Initial schema (V1 lean)
 -- Profiles, courses, grades + RLS, plus a trigger that creates a profile on signup.
 
 -- ─────────────────────────────────────────────────────────────────────────────

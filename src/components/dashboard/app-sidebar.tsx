@@ -2,7 +2,6 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { GraduationCap } from "lucide-react";
 import {
   Sidebar,
   SidebarContent,
@@ -15,7 +14,9 @@ import {
   SidebarMenuButton,
   SidebarMenuItem,
 } from "@/components/ui/sidebar";
-import { NAV_BY_ROLE, ROLE_LABEL } from "./nav-config";
+import { Brand } from "@/components/brand/brand";
+import { ROLE_LABEL } from "@/config/site";
+import { NAV_BY_ROLE } from "./nav-config";
 import type { Profile } from "@/types/db";
 import { UserMenu } from "./user-menu";
 
@@ -26,19 +27,12 @@ export function AppSidebar({ profile }: { profile: Profile }) {
   return (
     <Sidebar collapsible="icon" variant="inset">
       <SidebarHeader className="border-b border-sidebar-border/60">
-        <div className="flex items-center gap-2 px-2 py-1.5">
-          <div className="flex size-8 items-center justify-center rounded-md bg-primary text-primary-foreground">
-            <GraduationCap className="size-4" />
-          </div>
-          <div className="flex flex-col group-data-[collapsible=icon]:hidden">
-            <span className="text-sm font-semibold tracking-tight">
-              Learn-with-kayv
-            </span>
-            <span className="text-xs text-sidebar-foreground/60">
-              {ROLE_LABEL[profile.role]}
-            </span>
-          </div>
-        </div>
+        <Brand
+          href={null}
+          variant="boxed"
+          className="px-2 py-1.5"
+          subtitle={ROLE_LABEL[profile.role]}
+        />
       </SidebarHeader>
 
       <SidebarContent>

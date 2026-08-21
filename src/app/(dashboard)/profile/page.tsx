@@ -7,7 +7,7 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
-import { ROLE_LABEL } from "@/components/dashboard/nav-config";
+import { ROLE_LABEL } from "@/config/site";
 import { getCurrentUserAndProfile } from "@/lib/supabase/session";
 import { ProfileEditForm } from "./profile-edit-form";
 
